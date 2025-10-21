@@ -1,619 +1,444 @@
 import { eventBus } from '../event-bus';
-import { Window, WindowOptions, WindowStore, WindowState, SnapEdge, ScreenBounds } from './types';
+import { Window, WindowOptions, WindowStore, WindowState, SnapEdge } from './types';
 import {
-  getWindowStore,
-  getAllWindows,
-  addWindowStore,
-  removeWindowStore,
-  getNextZIndex,
-  scheduleWindowUpdate,
-  updateWindowsSignal
+    getWindowStore,
+    getAllWindows,
+    addWindowStore,
+    removeWindowStore,
+    getNextZIndex,
+    scheduleWindowUpdate,
+    updateWindowsSignal
 } from './store';
 import {
-  getScreenBounds,
-  constrainPosition,
-  animateWindowMinimize,
-  findWindowElement
+    getScreenBounds,
+    constrainPosition,
+    animateWindowMinimize,
+    findWindowElement
 } from './utils';
 
 export class WindowService {
-  private TASKBAR_HEIGHT = 48;
+    // ==== Constants ====
+    private static readonly TASKBAR_HEIGHT = 48;
+    // Allow for tiny jitter when comparing maximized geometry (scrollbar/zoom)
+    private static readonly GEOM_EPS = 1; // px
 
-  private isGeometryMaximized(win: Window): boolean {
-    const bounds = getScreenBounds();
-    const expectedHeight = bounds.height - this.TASKBAR_HEIGHT;
-    return (
-      win.x === bounds.offsetLeft &&
-      win.y === bounds.offsetTop &&
-      win.width === bounds.width &&
-      win.height === expectedHeight
-    );
-  }
+    // ==== Small Utils ====
 
-  openWindow(pluginId: string, title: string, options: WindowOptions = {}) {
-    const existing = getAllWindows().find(w => w.pluginId === pluginId);
-    if (existing) {
-      if (existing.state === 'minimized') {
-        this.restoreWindow(existing.id);
-      } else {
-        this.focusWindow(existing.id);
-      }
-      return;
+    private emit<T extends object>(name: string, payload: T): void {
+        eventBus.emitSync(name, payload);
     }
 
-    // Get current windows count BEFORE adding new one for correct positioning
-    const currentWindowsCount = getAllWindows().length;
-
-    const newWindow: Window = {
-      id: `${pluginId}-${Date.now()}`,
-      title,
-      pluginId,
-      x: options.x ?? 100 + currentWindowsCount * 50,
-      y: options.y ?? 100 + currentWindowsCount * 50,
-      width: options.width ?? 400,
-      height: options.height ?? 300,
-      state: 'normal',
-      focused: true,
-      zIndex: getNextZIndex(),
-      selected: false,
-      alwaysOnTop: options.alwaysOnTop ?? false,
-      opacity: 1,
-      isDragging: false,
-      isResizing: false,
-      isPreview: false,
-      component: options.component,
-      props: options.props,
-      createdAt: new Date(),
-    };
-
-    const constrained = constrainPosition(newWindow.x, newWindow.y, newWindow.width, newWindow.height);
-    newWindow.x = constrained.x;
-    newWindow.y = constrained.y;
-
-    // Create granular store for this window
-    addWindowStore(newWindow);
-
-    // Blur other windows
-    getAllWindows().forEach(win => {
-      if (win.id !== newWindow.id && win.focused) {
-        this.blurWindow(win.id);
-      }
-    });
-
-    // Emit window opened event
-    eventBus.emitSync('window:opened', {
-      id: newWindow.id,
-      pluginId,
-      title,
-      component: options.component,
-      props: options.props
-    });
-  }
-
-  closeWindow(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    const window = store.state;
-
-    // Cleanup scoped event listeners - fix scope pattern
-    eventBus.offAll(`window:${id}*`);
-
-    // Stop observing the DOM element for ResizeObserver
-    const windowElement = findWindowElement(id);
-    if (windowElement) {
-      // Note: We need access to the resizeObserver instance to unobserve
-      // This will be handled by the main index.ts cleanup
+    private withStore(id: string, fn: (store: WindowStore) => void): void {
+        const store = getWindowStore(id);
+        if (!store) return;
+        fn(store);
     }
 
-    // Remove from stores
-    removeWindowStore(id);
+    private getBounds() {
+        return getScreenBounds();
+    }
 
-    // Emit window closed event
-    eventBus.emitSync('window:closed', {
-      id,
-      pluginId: window.pluginId,
-      title: window.title
-    });
-  }
+    private setGeom(store: WindowStore, x: number, y: number, width: number, height: number) {
+        store.set({ x, y, width, height });
+    }
 
-  async minimizeWindow(id: string) {
-    const store = getWindowStore(id);
-    if (!store || store.state.state === 'minimized') return;
+    private savePreviousStateOnce(win: Window, store: WindowStore) {
+        // Save only if we don't have a non-maximized previous or the previous was 'maximized'
+        if (!win.previousState || win.previousState.state === 'maximized') {
+            store.update('previousState', {
+                x: win.x,
+                y: win.y,
+                width: win.width,
+                height: win.height,
+                state: win.state
+            });
+        }
+    }
 
-    const window = store.state;
+    private isGeometryMaximized(win: Window): boolean {
+        const b = this.getBounds();
+        const expectedHeight = b.height - WindowService.TASKBAR_HEIGHT;
+        const eq = (a: number, b: number) => Math.abs(a - b) <= WindowService.GEOM_EPS;
+        return (
+            eq(win.x, b.offsetLeft) &&
+            eq(win.y, b.offsetTop) &&
+            eq(win.width, b.width) &&
+            eq(win.height, expectedHeight)
+        );
+    }
 
-    // CRITICAL: Check if window was maximized before any state changes
-    const wasMaximized = window.state === 'maximized';
+    private isLogicallyMaximized(win: Window): boolean {
+        return win.state === 'maximized' || this.isGeometryMaximized(win);
+    }
 
-    // Save the ORIGINAL state before changing to 'minimizing'
-    const originalState = wasMaximized ? window.state : 'normal';
+    private getWindowsSnapshot() {
+        // Single call snapshot for functions that need to iterate
+        return getAllWindows();
+    }
 
-                
-    // First, add minimizing class to trigger animation
-    store.update('state', 'minimizing');
+    // ==== Public API (unchanged) ====
 
-    // Debug logging before and after state updates
-                    
-    // Emit window minimizing event
-    eventBus.emitSync('window:minimizing', {
-      id,
-      pluginId: window.pluginId,
-      title: window.title
-    });
+    openWindow(pluginId: string, title: string, options: WindowOptions = {}) {
+        const windows = this.getWindowsSnapshot();
+        const existing = windows.find(w => w.pluginId === pluginId);
+        if (existing) {
+            if (existing.state === 'minimized') {
+                this.restoreWindow(existing.id);
+            } else {
+                this.focusWindow(existing.id);
+            }
+            return;
+        }
 
-    // Find the DOM element for this window and animate it
-    const windowElement = findWindowElement(id);
-
-    if (windowElement) {
-      await animateWindowMinimize(windowElement);
-
-      // Save current state as previousState for restoration
-                              if (window.previousState) {
-              }
-
-      // ALWAYS preserve previousState for minimize operations
-      // This ensures we can restore correctly after minimize + restore
-      const currentState = {
-        x: window.x,
-        y: window.y,
-        width: window.width,
-        height: window.height,
-        state: originalState, // Use original state, not 'minimizing'
-      };
-            store.update('previousState', currentState);
-      store.update('state', 'minimized');
-      store.update('focused', false);
-
-      // Emit window minimized event
-      eventBus.emitSync('window:minimized', {
-        id,
-        pluginId: window.pluginId,
-        title: window.title
-      });
-    } else {
-      // Fallback to setTimeout if element not found
-      setTimeout(() => {
-        const currentStore = getWindowStore(id);
-        if (!currentStore) return;
-
-        // Save the ORIGINAL state before 'minimizing' for restoration
-        const originalState = currentStore.state.state;
-
-        // Save current state as previousState for restoration
-        const currentState = {
-          x: currentStore.state.x,
-          y: currentStore.state.y,
-          width: currentStore.state.width,
-          height: currentStore.state.height,
-          state: originalState, // Use original state, not 'minimizing'
+        const currentCount = windows.length;
+        const newWindow: Window = {
+            id: `${pluginId}-${Date.now()}`,
+            title,
+            pluginId,
+            x: options.x ?? 100 + currentCount * 50,
+            y: options.y ?? 100 + currentCount * 50,
+            width: options.width ?? 400,
+            height: options.height ?? 300,
+            state: 'normal',
+            focused: true,
+            zIndex: getNextZIndex(),
+            selected: false,
+            alwaysOnTop: options.alwaysOnTop ?? false,
+            opacity: 1,
+            isDragging: false,
+            isResizing: false,
+            isPreview: false,
+            component: options.component,
+            props: options.props,
+            createdAt: new Date(),
         };
-                currentStore.update('previousState', currentState);
-        currentStore.update('state', 'minimized');
-        currentStore.update('focused', false);
 
-        eventBus.emitSync('window:minimized', {
-          id,
-          pluginId: currentStore.state.pluginId,
-          title: currentStore.state.title
+        const constrained = constrainPosition(newWindow.x, newWindow.y, newWindow.width, newWindow.height);
+        newWindow.x = constrained.x;
+        newWindow.y = constrained.y;
+
+        addWindowStore(newWindow);
+
+        // Blur others if focused
+        for (const w of windows) {
+            if (w.id !== newWindow.id && w.focused) this.blurWindow(w.id);
+        }
+
+        this.emit('window:opened', {
+            id: newWindow.id,
+            pluginId,
+            title,
+            component: options.component,
+            props: options.props
         });
-      }, 250);
-    }
-  }
-
-  maximizeWindow(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    const window = store.state;
-
-            
-    // Don't overwrite previousState if window is already maximized
-    if (window.state === 'maximized') {
-            return;
     }
 
-    const bounds = getScreenBounds();
+    closeWindow(id: string) {
+        const store = getWindowStore(id);
+        if (!store) return;
+        const win = store.state;
 
-    // If already maximized (or effectively maximized), do nothing
-    if (window.state === 'maximized' || this.isGeometryMaximized(window)) {
-            return;
+        // Scoped listener cleanup
+        eventBus.offAll(`window:${id}*`);
+
+        // If you later track per-window observers, unobserve here.
+        // (ResizeObserver is centralized in your module setup.)
+
+        removeWindowStore(id);
+
+        this.emit('window:closed', {
+            id,
+            pluginId: win.pluginId,
+            title: win.title
+        });
     }
 
-    // Only set previousState if we're transitioning from a non-maximized mode
-    // Don't overwrite good previousState with maximized geometry
-    if (!window.previousState || window.previousState.state === 'maximized') {
-      const newPreviousState = {
-        x: window.x,
-        y: window.y,
-        width: window.width,
-        height: window.height,
-        state: window.state,
-      };
-            store.update('previousState', newPreviousState);
+    minimizeWindow(id: string) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+            if (win.state === 'minimized') return;
+
+            const wasMaximized = win.state === 'maximized';
+            const originalState: WindowState = wasMaximized ? 'maximized' : 'normal';
+
+            // Visual hint (optional CSS), not awaited
+            store.update('state', 'minimizing');
+            this.emit('window:minimizing', { id, pluginId: win.pluginId, title: win.title });
+
+            // Snapshot before hiding
+            const prev = { x: win.x, y: win.y, width: win.width, height: win.height, state: originalState };
+            store.set({
+                previousState: prev,
+                state: 'minimized',
+                focused: false
+            });
+
+            this.emit('window:minimized', { id, pluginId: win.pluginId, title: win.title });
+
+            const el = findWindowElement(id);
+            if (el) {
+                // Fire-and-forget animation
+                animateWindowMinimize(el).catch(() => {/* ignore */});
+            }
+        });
     }
 
-    // Batch all updates together
-    store.set({
-      state: 'maximized',
-      x: bounds.offsetLeft,
-      y: bounds.offsetTop,
-      width: bounds.width,
-      height: bounds.height - this.TASKBAR_HEIGHT,
-    });
+    maximizeWindow(id: string) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+            if (this.isLogicallyMaximized(win)) return;
 
-    
-    // Update reactive store to trigger UI re-render
-    updateWindowsSignal();
+            this.savePreviousStateOnce(win, store);
 
-    // Emit window maximized event
-    eventBus.emitSync('window:maximized', {
-      id,
-      pluginId: window.pluginId,
-      title: window.title
-    });
-  }
+            const b = this.getBounds();
+            store.set({
+                state: 'maximized',
+                x: b.offsetLeft,
+                y: b.offsetTop,
+                width: b.width,
+                height: b.height - WindowService.TASKBAR_HEIGHT,
+            });
 
-  // Native-like toggle maximize functionality
-  toggleMaximizeWindow(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
+            // Re-render only when geometry or stacking changes
+            updateWindowsSignal();
 
-    const window = store.state;
-
-                if (window.previousState) {
-          }
-
-    // Check if window is logically maximized (state OR geometry)
-    const logicallyMaximized = window.state === 'maximized' || this.isGeometryMaximized(window);
-    
-    if (logicallyMaximized) {
-            // If already maximized, restore to previous size
-      this.restoreWindow(id);
-    } else {
-            // If not maximized, maximize it
-      this.maximizeWindow(id);
-    }
-  }
-
-  restoreWindow(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    const window = store.state;
-
-                if (window.previousState) {
-          }
-
-    // Only restore if we have a previous state
-    if (!window.previousState) {
-            return;
+            this.emit('window:maximized', { id, pluginId: win.pluginId, title: win.title });
+        });
     }
 
-    const previousState = window.previousState;
-
-    // Batch all updates together
-    store.set({
-      state: previousState.state,
-      x: previousState.x,
-      y: previousState.y,
-      width: previousState.width,
-      height: previousState.height,
-      previousState: undefined,
-    });
-
-    
-    // Focus the restored window and bring it to front
-    this.focusWindow(id);
-
-    // Emit window restored event
-    eventBus.emitSync('window:restored', {
-      id,
-      pluginId: window.pluginId,
-      title: window.title,
-      fromState: previousState.state
-    });
-  }
-
-  focusWindow(id: string) {
-    const store = getWindowStore(id);
-    if (!store || store.state.focused) return;
-
-    const window = store.state;
-
-    // Blur the currently focused window
-    const currentlyFocused = getAllWindows().find(w => w.focused);
-    if (currentlyFocused && currentlyFocused.id !== id) {
-      this.blurWindow(currentlyFocused.id);
+    toggleMaximizeWindow(id: string) {
+        const store = getWindowStore(id);
+        if (!store) return;
+        const win = store.state;
+        if (this.isLogicallyMaximized(win)) this.restoreWindow(id);
+        else this.maximizeWindow(id);
     }
 
-    store.update('focused', true);
-    this.bringToFront(id);
+    restoreWindow(id: string) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+            const prev = win.previousState;
+            if (!prev) return;
 
-    // Emit window focused event
-    eventBus.emitSync('window:focused', {
-      id,
-      pluginId: window.pluginId,
-      title: window.title
-    });
-  }
+            store.set({
+                state: prev.state,
+                x: prev.x,
+                y: prev.y,
+                width: prev.width,
+                height: prev.height,
+                previousState: undefined,
+            });
 
-  blurWindow(id: string) {
-    const store = getWindowStore(id);
-    if (!store || !store.state.focused) return;
+            this.focusWindow(id);
 
-    const window = store.state;
-    store.update('focused', false);
-
-    // Emit window blurred event
-    eventBus.emitSync('window:blurred', {
-      id,
-      pluginId: window.pluginId,
-      title: window.title
-    });
-  }
-
-  updateWindowPosition(id: string, x: number, y: number) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    const window = store.state;
-    const constrained = constrainPosition(x, y, window.width, window.height);
-
-    scheduleWindowUpdate(id);
-    store.update('x', constrained.x);
-    store.update('y', constrained.y);
-
-    // Update reactive store to trigger UI re-render during drag
-    if (getWindowStore(id)?.state.isDragging) {
-      updateWindowsSignal();
-    }
-  }
-
-  updateWindowSize(id: string, width: number, height: number) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    const window = store.state;
-    const constrained = constrainPosition(window.x, window.y, width, height);
-
-    scheduleWindowUpdate(id);
-    store.update('width', width);
-    store.update('height', height);
-    store.update('x', constrained.x);
-    store.update('y', constrained.y);
-
-    // Update reactive store to trigger UI re-render
-    updateWindowsSignal();
-
-    // Emit window resized event
-    eventBus.emitSync('window:resized', {
-      id,
-      pluginId: window.pluginId,
-      title: window.title,
-      width,
-      height
-    });
-  }
-
-  snapWindow(id: string, edge: SnapEdge) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    const bounds = getScreenBounds();
-    const window = store.state;
-
-    let newX = window.x;
-    let newY = window.y;
-    let newWidth = window.width;
-    let newHeight = window.height;
-
-    switch (edge) {
-      case 'left':
-        newX = bounds.offsetLeft;
-        newWidth = bounds.width / 2;
-        newHeight = bounds.height;
-        break;
-      case 'right':
-        newX = bounds.offsetLeft + bounds.width / 2;
-        newWidth = bounds.width / 2;
-        newHeight = bounds.height;
-        break;
-      case 'top':
-        newX = bounds.offsetLeft;
-        newY = bounds.offsetTop;
-        newWidth = bounds.width;
-        newHeight = bounds.height / 2;
-        break;
-      case 'bottom':
-        newX = bounds.offsetLeft;
-        newY = bounds.offsetTop + bounds.height / 2;
-        newWidth = bounds.width;
-        newHeight = bounds.height / 2;
-        break;
-      case 'top-left':
-        newX = bounds.offsetLeft;
-        newY = bounds.offsetTop;
-        newWidth = bounds.width / 2;
-        newHeight = bounds.height / 2;
-        break;
-      case 'top-right':
-        newX = bounds.offsetLeft + bounds.width / 2;
-        newY = bounds.offsetTop;
-        newWidth = bounds.width / 2;
-        newHeight = bounds.height / 2;
-        break;
-      case 'bottom-left':
-        newX = bounds.offsetLeft;
-        newY = bounds.offsetTop + bounds.height / 2;
-        newWidth = bounds.width / 2;
-        newHeight = bounds.height / 2;
-        break;
-      case 'bottom-right':
-        newX = bounds.offsetLeft + bounds.width / 2;
-        newY = bounds.offsetTop + bounds.height / 2;
-        newWidth = bounds.width / 2;
-        newHeight = bounds.height / 2;
-        break;
+            this.emit('window:restored', {
+                id,
+                pluginId: win.pluginId,
+                title: win.title,
+                fromState: prev.state
+            });
+        });
     }
 
-    store.update('x', newX);
-    store.update('y', newY);
-    store.update('width', newWidth);
-    store.update('height', newHeight);
-    store.update('snapEdge', edge);
-  }
+    focusWindow(id: string) {
+        const windows = this.getWindowsSnapshot();
+        const currentlyFocused = windows.find(w => w.focused);
 
-  selectWindow(id: string, multi = false) {
-    const store = getWindowStore(id);
-    if (!store) return;
+        if (currentlyFocused && currentlyFocused.id === id) return;
 
-    if (!multi) {
-      this.clearSelection();
+        if (currentlyFocused) this.blurWindow(currentlyFocused.id);
+
+        this.withStore(id, (store) => {
+            const win = store.state;
+            store.update('focused', true);
+            this.bringToFront(id);
+            this.emit('window:focused', { id, pluginId: win.pluginId, title: win.title });
+        });
     }
-    store.update('selected', true);
-  }
 
-  deselectWindow(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    store.update('selected', false);
-  }
-
-  clearSelection() {
-    getAllWindows().forEach(win => {
-      const store = getWindowStore(win.id);
-      if (store && store.state.selected) {
-        store.update('selected', false);
-      }
-    });
-  }
-
-  bringToFront(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    const newZIndex = getNextZIndex();
-    store.update('zIndex', newZIndex);
-
-    // Update reactive store to trigger UI re-render
-    updateWindowsSignal();
-  }
-
-  sendToBack(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    const lowestZIndex = Math.min(...getAllWindows().map(w => w.zIndex));
-    store.update('zIndex', lowestZIndex - 1);
-  }
-
-  setAlwaysOnTop(id: string, alwaysOnTop: boolean) {
-    const store = getWindowStore(id);
-    if (!store) return;
-
-    store.update('alwaysOnTop', alwaysOnTop);
-    if (alwaysOnTop) {
-      this.bringToFront(id);
+    blurWindow(id: string) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+            if (!win.focused) return;
+            store.update('focused', false);
+            this.emit('window:blurred', { id, pluginId: win.pluginId, title: win.title });
+        });
     }
-  }
 
-  setWindowOpacity(id: string, opacity: number) {
-    const store = getWindowStore(id);
-    if (!store) return;
+    updateWindowPosition(id: string, x: number, y: number) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+            const c = constrainPosition(x, y, win.width, win.height);
 
-    const clampedOpacity = Math.max(0, Math.min(1, opacity));
-    store.update('opacity', clampedOpacity);
-  }
+            scheduleWindowUpdate(id);
+            store.update('x', c.x);
+            store.update('y', c.y);
 
-  startDrag(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
+            if (win.isDragging) updateWindowsSignal();
+        });
+    }
 
-    store.update('isDragging', true);
-    // DON'T change state - use isDragging flag for visual effects
-  }
+    updateWindowSize(id: string, width: number, height: number) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+            const c = constrainPosition(win.x, win.y, width, height);
 
-  endDrag(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
+            scheduleWindowUpdate(id);
+            // Batch geometry updates
+            store.set({ width, height, x: c.x, y: c.y });
 
-    store.update('isDragging', false);
-    // DON'T force state to 'normal' - preserve layout state
-    store.update('snapEdge', undefined);
-  }
+            updateWindowsSignal();
 
-  startResize(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
+            this.emit('window:resized', {
+                id,
+                pluginId: win.pluginId,
+                title: win.title,
+                width,
+                height
+            });
+        });
+    }
 
-    store.update('isResizing', true);
-  }
+    private getSnapRect(edge: SnapEdge) {
+        const b = this.getBounds();
+        const halfW = b.width / 2;
+        const halfH = b.height / 2;
 
-  endResize(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
+        switch (edge) {
+            case 'left':         return { x: b.offsetLeft, y: undefined, w: halfW, h: b.height };
+            case 'right':        return { x: b.offsetLeft + halfW, y: undefined, w: halfW, h: b.height };
+            case 'top':          return { x: b.offsetLeft, y: b.offsetTop, w: b.width, h: halfH };
+            case 'bottom':       return { x: b.offsetLeft, y: b.offsetTop + halfH, w: b.width, h: halfH };
+            case 'top-left':     return { x: b.offsetLeft, y: b.offsetTop, w: halfW, h: halfH };
+            case 'top-right':    return { x: b.offsetLeft + halfW, y: b.offsetTop, w: halfW, h: halfH };
+            case 'bottom-left':  return { x: b.offsetLeft, y: b.offsetTop + halfH, w: halfW, h: halfH };
+            case 'bottom-right': return { x: b.offsetLeft + halfW, y: b.offsetTop + halfH, w: halfW, h: halfH };
+        }
+    }
 
-    store.update('isResizing', false);
-  }
+    snapWindow(id: string, edge: SnapEdge) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+            const r = this.getSnapRect(edge);
+            if (!r) return;
 
-  setPreviewState(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
+            // Keep y if not defined (left/right snaps)
+            const newX = r.x!;
+            const newY = r.y ?? win.y;
+            const newW = r.w!;
+            const newH = r.h!;
 
-    store.update('isPreview', true);
-  }
+            store.set({ x: newX, y: newY, width: newW, height: newH, snapEdge: edge });
+        });
+    }
 
-  clearPreviewState(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
+    selectWindow(id: string, multi = false) {
+        if (!multi) this.clearSelection();
+        this.withStore(id, (store) => store.update('selected', true));
+    }
 
-    store.update('isPreview', false);
-  }
+    deselectWindow(id: string) {
+        this.withStore(id, (store) => store.update('selected', false));
+    }
 
-  getSelectedWindows() {
-    return getAllWindows().filter(w => w.selected);
-  }
+    clearSelection() {
+        const windows = this.getWindowsSnapshot();
+        for (const w of windows) {
+            if (w.selected) this.deselectWindow(w.id);
+        }
+    }
 
-  getHighestZIndex() {
-    const windows = getAllWindows();
-    return windows.length > 0 ? Math.max(...windows.map(w => w.zIndex)) : 0;
-  }
+    bringToFront(id: string) {
+        this.withStore(id, (store) => {
+            store.update('zIndex', getNextZIndex());
+            updateWindowsSignal();
+        });
+    }
 
-  constrainToScreen(id: string) {
-    const store = getWindowStore(id);
-    if (!store) return;
+    sendToBack(id: string) {
+        const windows = this.getWindowsSnapshot();
+        if (windows.length === 0) return;
 
-    const window = store.state;
-    const constrained = constrainPosition(window.x, window.y, window.width, window.height);
-    store.update('x', constrained.x);
-    store.update('y', constrained.y);
-  }
+        const minZ = Math.min(...windows.map(w => w.zIndex));
+        this.withStore(id, (store) => store.update('zIndex', minZ - 1));
+    }
 
-  getMinimizedWindows() {
-    return getAllWindows().filter(w => w.state === 'minimized');
-  }
+    setAlwaysOnTop(id: string, alwaysOnTop: boolean) {
+        this.withStore(id, (store) => {
+            store.update('alwaysOnTop', alwaysOnTop);
+            if (alwaysOnTop) this.bringToFront(id);
+        });
+    }
 
-  inspect() {
-    const windows = getAllWindows();
-    const focusedWindow = windows.find(w => w.focused);
-    const zIndexes = windows.map(w => w.zIndex);
+    setWindowOpacity(id: string, opacity: number) {
+        this.withStore(id, (store) => {
+            const clamped = Math.max(0, Math.min(1, opacity));
+            store.update('opacity', clamped);
+        });
+    }
 
-    return {
-      totalWindows: windows.length,
-      focusedWindow: focusedWindow?.id || null,
-      zIndexRange: {
-        min: zIndexes.length > 0 ? Math.min(...zIndexes) : 0,
-        max: zIndexes.length > 0 ? Math.max(...zIndexes) : 0
-      },
-      memoryUsage: windows.length * 150, // Estimated KB per window
-      activeListeners: eventBus.getListenerCount('window:*') || 0
-    };
-  }
+    startDrag(id: string) {
+        this.withStore(id, (store) => store.update('isDragging', true));
+    }
 
-  // Expose window store access for ResizeObserver
-  getWindowStore(id: string) {
-    return getWindowStore(id);
-  }
+    endDrag(id: string) {
+        this.withStore(id, (store) => {
+            store.set({ isDragging: false, snapEdge: undefined });
+        });
+    }
+
+    startResize(id: string) {
+        this.withStore(id, (store) => store.update('isResizing', true));
+    }
+
+    endResize(id: string) {
+        this.withStore(id, (store) => store.update('isResizing', false));
+    }
+
+    setPreviewState(id: string) {
+        this.withStore(id, (store) => store.update('isPreview', true));
+    }
+
+    clearPreviewState(id: string) {
+        this.withStore(id, (store) => store.update('isPreview', false));
+    }
+
+    getSelectedWindows() {
+        return this.getWindowsSnapshot().filter(w => w.selected);
+    }
+
+    getHighestZIndex() {
+        const windows = this.getWindowsSnapshot();
+        return windows.length > 0 ? Math.max(...windows.map(w => w.zIndex)) : 0;
+    }
+
+    constrainToScreen(id: string) {
+        this.withStore(id, (store) => {
+            const w = store.state;
+            const c = constrainPosition(w.x, w.y, w.width, w.height);
+            store.set({ x: c.x, y: c.y });
+        });
+    }
+
+    getMinimizedWindows() {
+        return this.getWindowsSnapshot().filter(w => w.state === 'minimized');
+    }
+
+    inspect() {
+        const windows = this.getWindowsSnapshot();
+        const focusedWindow = windows.find(w => w.focused);
+        const z = windows.map(w => w.zIndex);
+        return {
+            totalWindows: windows.length,
+            focusedWindow: focusedWindow?.id || null,
+            zIndexRange: { min: z.length ? Math.min(...z) : 0, max: z.length ? Math.max(...z) : 0 },
+            memoryUsage: windows.length * 150, // Estimated KB per window
+            activeListeners: eventBus.getListenerCount('window:*') || 0
+        };
+    }
+
+    // Expose window store access for ResizeObserver
+    getWindowStore(id: string) {
+        return getWindowStore(id);
+    }
 }
