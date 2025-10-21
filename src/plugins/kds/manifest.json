@@ -1,0 +1,25 @@
+{
+  "id": "@dineapp/kds",
+  "displayName": "Kitchen Display System",
+  "version": "1.0.0",
+  "description": "Kitchen order management and food preparation tracking",
+  "icon": "👨‍🍳",
+  "entry": "./index.tsx",
+  "permissions": [
+    "order.read",
+    "order.update",
+    "menu.read"
+  ],
+  "dependencies": [],
+  "configSchema": "./config/schema.json",
+  "windows": [
+    {
+      "id": "kds-main",
+      "title": "Kitchen Display",
+      "defaultWidth": 1000,
+      "defaultHeight": 700,
+      "minWidth": 800,
+      "minHeight": 600
+    }
+  ]
+}

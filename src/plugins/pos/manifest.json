@@ -1,0 +1,29 @@
+{
+  "id": "@dineapp/pos",
+  "displayName": "POS Terminal",
+  "version": "1.0.0",
+  "description": "Point of Sale interface for order taking and payment processing",
+  "icon": "💰",
+  "entry": "./index.tsx",
+  "permissions": [
+    "order.read",
+    "order.create", 
+    "order.update",
+    "menu.read",
+    "table.read",
+    "table.update",
+    "payment.process"
+  ],
+  "dependencies": [],
+  "configSchema": "./config/schema.json",
+  "windows": [
+    {
+      "id": "pos-main",
+      "title": "POS Terminal",
+      "defaultWidth": 800,
+      "defaultHeight": 600,
+      "minWidth": 600,
+      "minHeight": 400
+    }
+  ]
+}

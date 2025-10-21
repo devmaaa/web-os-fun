@@ -1,0 +1,26 @@
+{
+  "id": "@dineapp/analytics",
+  "displayName": "Analytics Dashboard",
+  "version": "1.0.0",
+  "description": "Sales reports, performance metrics, and business insights",
+  "icon": "📊",
+  "entry": "./index.tsx",
+  "permissions": [
+    "order.read",
+    "menu.read",
+    "analytics.view",
+    "reports.export"
+  ],
+  "dependencies": [],
+  "configSchema": "./config/schema.json",
+  "windows": [
+    {
+      "id": "analytics-main",
+      "title": "Analytics Dashboard",
+      "defaultWidth": 1200,
+      "defaultHeight": 700,
+      "minWidth": 900,
+      "minHeight": 600
+    }
+  ]
+}

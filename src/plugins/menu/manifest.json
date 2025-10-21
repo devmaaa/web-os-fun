@@ -1,0 +1,26 @@
+{
+  "id": "@dineapp/menu",
+  "displayName": "Menu Editor",
+  "version": "1.0.0",
+  "description": "Menu item management, pricing, and dietary information",
+  "icon": "📋",
+  "entry": "./index.tsx",
+  "permissions": [
+    "menu.read",
+    "menu.create",
+    "menu.update",
+    "menu.delete"
+  ],
+  "dependencies": [],
+  "configSchema": "./config/schema.json",
+  "windows": [
+    {
+      "id": "menu-main",
+      "title": "Menu Editor",
+      "defaultWidth": 850,
+      "defaultHeight": 600,
+      "minWidth": 650,
+      "minHeight": 450
+    }
+  ]
+}
