@@ -223,7 +223,7 @@ const App: Component = () => {
                 transform: window.isDragging ? `translate3d(0, 0, 0)` : 'none',
                 willChange: window.isDragging ? 'transform' : 'auto',
                 // Visual feedback for drag state
-                opacity: window.state === 'ghost' ? 0.8 : 1,
+                opacity: window.isDragging ? 0.8 : (window.isPreview ? 0.7 : 1),
                 transition: window.isDragging ? 'none' : 'opacity 0.2s ease'
               }}
             >
@@ -253,13 +253,7 @@ const App: Component = () => {
                   </button>
                   <button
                     class="w-6 h-6 rounded bg-green-500 text-white text-xs"
-                    onClick={() => {
-                      if (window.state === 'maximized') {
-                        windowManager.restoreWindow(window.id);
-                      } else {
-                        windowManager.maximizeWindow(window.id);
-                      }
-                    }}
+                    onClick={() => windowManager.toggleMaximizeWindow(window.id)}
                   >
                     {window.state === 'maximized' ? '❐' : '□'}
                   </button>
