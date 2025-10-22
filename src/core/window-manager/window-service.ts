@@ -1,4 +1,6 @@
 import { eventBus } from '../event-bus';
+import { createWindow, getWindow, destroyWindow, windowFSMManager } from '@core/fsm';
+import type { FSM } from '@core/fsm';
 import { Window, WindowOptions, WindowStore, WindowState, SnapEdge } from './types';
 import {
     getWindowStore,
@@ -22,6 +24,9 @@ export class WindowService {
     // Allow for tiny jitter when comparing maximized geometry (scrollbar/zoom)
     private static readonly GEOM_EPS = 1; // px
 
+    // FSM state management
+    private windowFSMs = new Map<string, FSM<any, any>>();
+
     // ==== Small Utils ====
 
     private emit<T extends object>(name: string, payload: T): void {
@@ -32,6 +37,71 @@ export class WindowService {
         const store = getWindowStore(id);
         if (!store) return;
         fn(store);
+    }
+
+    private getFSM(id: string): FSM<any, any> | undefined {
+        return this.windowFSMs.get(id);
+    }
+
+    private createWindowFSM(id: string, windowData: Partial<Window>): FSM<any, any> {
+        const fsm = createWindow(id, {
+            windowId: id,
+            pluginId: windowData.pluginId || 'unknown',
+            title: windowData.title || 'Window',
+            x: windowData.x ?? 100,
+            y: windowData.y ?? 100,
+            width: windowData.width ?? 400,
+            height: windowData.height ?? 300,
+            resizable: true,
+            maximizable: true,
+            minimizable: true,
+            focused: false,
+            zOrder: 0
+        });
+
+        this.windowFSMs.set(id, fsm);
+        return fsm;
+    }
+
+    private destroyWindowFSM(id: string): void {
+        const fsm = this.windowFSMs.get(id);
+        if (fsm) {
+            // Ensure window is closed before destroying FSM
+            if (fsm.getState() !== 'closed') {
+                fsm.transition('close');
+            }
+            this.windowFSMs.delete(id);
+            destroyWindow(id);
+        }
+    }
+
+    private syncWindowStateWithFSM(id: string): void {
+        const store = getWindowStore(id);
+        const fsm = this.getFSM(id);
+
+        if (store && fsm) {
+            const fsmState = fsm.getState();
+            const windowState = this.mapFSMStateToWindowState(fsmState);
+
+            if (store.state.state !== windowState) {
+                store.update('state', windowState);
+            }
+        }
+    }
+
+    private mapFSMStateToWindowState(fsmState: string): WindowState {
+        const stateMapping: Record<string, WindowState> = {
+            'closed': 'normal',
+            'opening': 'opening',
+            'normal': 'normal',
+            'minimizing': 'minimizing',
+            'minimized': 'minimized',
+            'maximizing': 'maximizing',
+            'maximized': 'maximized',
+            'restoring': 'restoring',
+            'closing': 'closing'
+        };
+        return stateMapping[fsmState] as WindowState || 'normal';
     }
 
     private getBounds() {
@@ -117,6 +187,16 @@ export class WindowService {
         newWindow.x = constrained.x;
         newWindow.y = constrained.y;
 
+        // Create FSM for the window
+        const fsm = this.createWindowFSM(newWindow.id, newWindow);
+
+        // Start FSM lifecycle - complete the full transition to normal state
+        if (fsm.transition('open')) { // closed -> opening
+            fsm.transition('open');    // opening -> normal
+            // Sync window state with final FSM state
+            this.syncWindowStateWithFSM(newWindow.id);
+        }
+
         addWindowStore(newWindow);
 
         // Blur others if focused
@@ -137,6 +217,12 @@ export class WindowService {
         const store = getWindowStore(id);
         if (!store) return;
         const win = store.state;
+        const fsm = this.getFSM(id);
+
+        // Use FSM to handle the close operation
+        if (fsm && fsm.can('close')) {
+            fsm.transition('close');
+        }
 
         // Scoped listener cleanup
         eventBus.offAll(`window:${id}*`);
@@ -146,6 +232,9 @@ export class WindowService {
 
         removeWindowStore(id);
 
+        // Clean up FSM
+        this.destroyWindowFSM(id);
+
         this.emit('window:closed', {
             id,
             pluginId: win.pluginId,
@@ -154,9 +243,18 @@ export class WindowService {
     }
 
     minimizeWindow(id: string) {
+        const fsm = this.getFSM(id);
+        if (!fsm || !fsm.can('minimize')) {
+            console.warn(`[WindowService] Cannot minimize window "${id}" - FSM state doesn't allow it`);
+            return;
+        }
+
         this.withStore(id, (store) => {
             const win = store.state;
             if (win.state === 'minimized') return;
+
+            // Use FSM to handle minimization
+            fsm.transition('minimize');
 
             const wasMaximized = win.state === 'maximized';
             const originalState: WindowState = wasMaximized ? 'maximized' : 'normal';
@@ -184,9 +282,18 @@ export class WindowService {
     }
 
     maximizeWindow(id: string) {
+        const fsm = this.getFSM(id);
+        if (!fsm || !fsm.can('maximize')) {
+            console.warn(`[WindowService] Cannot maximize window "${id}" - FSM state doesn't allow it`);
+            return;
+        }
+
         this.withStore(id, (store) => {
             const win = store.state;
             if (this.isLogicallyMaximized(win)) return;
+
+            // Use FSM to handle maximization
+            fsm.transition('maximize');
 
             this.savePreviousStateOnce(win, store);
 
@@ -215,10 +322,19 @@ export class WindowService {
     }
 
     restoreWindow(id: string) {
+        const fsm = this.getFSM(id);
+        if (!fsm || !fsm.can('restore')) {
+            console.warn(`[WindowService] Cannot restore window "${id}" - FSM state doesn't allow it`);
+            return;
+        }
+
         this.withStore(id, (store) => {
             const win = store.state;
             const prev = win.previousState;
             if (!prev) return;
+
+            // Use FSM to handle restoration
+            fsm.transition('restore');
 
             store.set({
                 state: prev.state,
@@ -440,5 +556,28 @@ export class WindowService {
     // Expose window store access for ResizeObserver
     getWindowStore(id: string) {
         return getWindowStore(id);
+    }
+
+    // FSM-specific methods
+    getFSMState(id: string): string | undefined {
+        const fsm = this.getFSM(id);
+        return fsm?.getState();
+    }
+
+    canExecuteOperation(id: string, operation: 'close' | 'minimize' | 'maximize' | 'restore' | 'focus'): boolean {
+        const fsm = this.getFSM(id);
+        return fsm ? fsm.can(operation) : false;
+    }
+
+    getFSMStats() {
+        return {
+            totalWindows: this.windowFSMs.size,
+            activeWindows: Array.from(this.windowFSMs.values()).filter(fsm => fsm.isEnabled()).length,
+            fsmStates: Array.from(this.windowFSMs.entries()).map(([id, fsm]) => ({
+                windowId: id,
+                state: fsm.getState(),
+                enabled: fsm.isEnabled()
+            }))
+        };
     }
 }

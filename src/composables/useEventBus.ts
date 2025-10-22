@@ -1,6 +1,6 @@
 import { onCleanup } from 'solid-js';
-import { eventBus } from '../core/event-bus';
-import type { EventHandler } from '../core/event-bus';
+import { eventBus } from '@core/event-bus';
+import type { EventHandler } from '@core/event-bus';
 
 export function useEventBus<T = any>(
   event: string,

@@ -39,6 +39,7 @@ while sharing a consistent UI, communication, and data contract layer.
 │  • Plugin Loader                           │
 │  • Event Bus (Scoped + Leak-safe)          │
 │  • Window Manager                          │
+│  • Finite State Machine (FSM) System      │
 │  • State Manager                           │
 │  • Config Engine                           │
 │  • Theme Engine                            │
@@ -67,6 +68,7 @@ Subsystem	Description
 Microkernel	Minimal runtime responsible for loading, starting, and stopping plugins.
 Event Bus	Global message backbone connecting all modules. Leak-free, scoped per plugin.
 Window Manager	Handles window-based multitasking (open, minimize, maximize, close).
+Finite State Machine (FSM) System	Deterministic state coordination for all subsystems (windows, plugins, storage, auth).
 State Manager	Lightweight layer for shared state between plugins (optional).
 Config Engine	Loads schema-driven configurations defining entities, workflows, permissions.
 Theme Engine	Provides global theming, dark/light modes, and per-plugin overrides.
@@ -191,6 +193,7 @@ dineapp/
 ├── core/
 │   ├── event-bus/            # Core messaging system
 │   ├── window-manager/       # OS windowing layer
+│   ├── fsm/                 # Finite State Machine system (deterministic state coordination)
 │   ├── plugin-loader/        # Dynamic plugin lifecycle
 │   ├── config-engine/        # Schema-driven config engine
 │   ├── auth/                 # User authentication / permissions
@@ -228,6 +231,10 @@ Clean up with eventBus.offAll(scope) in onUnload().
 Declare plugin capabilities in manifest.json.
 
 Use shared packages (@ui, @sdk, @types) for consistency.
+
+Use FSM for plugin lifecycle management (import { createPlugin } from '@core/fsm').
+
+Listen to FSM events for debugging (fsm:transition, fsm:error) with plugin scope.
 
 ❌ DON’Ts
 
@@ -268,6 +275,12 @@ All events must follow domain:action naming convention.
 Prefer async emit() for side effects, emitSync() for reactive UI updates.
 
 Plugin teardown must always call eventBus.offAll(scope).
+
+Use FSM for state management in complex subsystems (windows, plugins, storage, auth).
+
+Assume FSM integration is native to core systems - don't create parallel state management.
+
+Follow fsm-architecture-spec.md for deterministic state coordination patterns.
 
 🧩 13. Example Plugin Life Cycle (Non-code Summary)
 
@@ -313,3 +326,5 @@ event-bus-spec.md — Messaging layer specification
 plugin-system-spec.md — Plugin lifecycle and manifest structure
 
 window-manager-spec.md — OS UI and windowing behavior
+
+fsm-architecture-spec.md — Finite State Machine system specification

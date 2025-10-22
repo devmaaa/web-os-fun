@@ -129,20 +129,26 @@ const WindowManager: Component<WindowManagerProps> = () => {
               </div>
               <div class="flex space-x-1">
                 <button
-                  class="w-6 h-6 rounded bg-yellow-500 text-white text-xs"
+                  class="w-6 h-6 rounded bg-yellow-500 text-white text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => windowManager.minimizeWindow(window.id)}
+                  disabled={!windowManager.canExecuteOperation?.(window.id, 'minimize')}
+                  title={windowManager.canExecuteOperation?.(window.id, 'minimize') ? 'Minimize' : 'Cannot minimize in current state'}
                 >
                   −
                 </button>
                 <button
-                  class="w-6 h-6 rounded bg-green-500 text-white text-xs"
+                  class="w-6 h-6 rounded bg-green-500 text-white text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => windowManager.toggleMaximizeWindow(window.id)}
+                  disabled={!windowManager.canExecuteOperation?.(window.id, 'maximize') && window.state !== 'maximized'}
+                  title={windowManager.canExecuteOperation?.(window.id, 'maximize') || window.state === 'maximized' ? (window.state === 'maximized' ? 'Restore' : 'Maximize') : 'Cannot maximize in current state'}
                 >
                   {window.state === 'maximized' ? '❐' : '□'}
                 </button>
                 <button
-                  class="w-6 h-6 rounded bg-red-500 text-white text-xs"
+                  class="w-6 h-6 rounded bg-red-500 text-white text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => windowManager.closeWindow(window.id)}
+                  disabled={!windowManager.canExecuteOperation?.(window.id, 'close')}
+                  title={windowManager.canExecuteOperation?.(window.id, 'close') ? 'Close' : 'Cannot close in current state'}
                 >
                   ×
                 </button>
@@ -166,6 +172,10 @@ const WindowManager: Component<WindowManagerProps> = () => {
                       <p style={{ color: 'var(--text-secondary)' }}>Content for {window.title}</p>
                       <p style={{ color: 'var(--text-secondary)' }}>Plugin ID: {window.pluginId}</p>
                       <p style={{ color: 'var(--text-secondary)' }}>Window ID: {window.id}</p>
+                      <div style={{ color: 'var(--text-muted)', 'font-size': '0.75rem', 'margin-top': '0.5rem' }}>
+                        <p>State: {window.state}</p>
+                        <p>FSM State: {windowManager.getFSMState?.(window.id) || 'N/A'}</p>
+                      </div>
                     </div>
                   </div>
                 );

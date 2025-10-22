@@ -47,13 +47,26 @@ export const windowManager: WindowManager = {
     return getWindowsSignal();
   },
 
-  openWindow: (pluginId: string, title: string, options?) => windowService.openWindow(pluginId, title, options),
+  /**
+   * Enhanced openWindow with FSM integration
+   * Creates window with FSM backing for deterministic state management
+   */
+  openWindow: (pluginId: string, title: string, options?) => {
+    return windowService.openWindow(pluginId, title, options);
+  },
+
   closeWindow: (id: string) => windowService.closeWindow(id),
+
   minimizeWindow: (id: string) => windowService.minimizeWindow(id),
+
   maximizeWindow: (id: string) => windowService.maximizeWindow(id),
+
   toggleMaximizeWindow: (id: string) => windowService.toggleMaximizeWindow(id),
+
   restoreWindow: (id: string) => windowService.restoreWindow(id),
+
   focusWindow: (id: string) => windowService.focusWindow(id),
+
   blurWindow: (id: string) => windowService.blurWindow(id),
   updateWindowPosition: (id: string, x: number, y: number) => windowService.updateWindowPosition(id, x, y),
   updateWindowSize: (id: string, width: number, height: number) => windowService.updateWindowSize(id, width, height),
@@ -76,6 +89,15 @@ export const windowManager: WindowManager = {
   constrainToScreen: (id: string) => windowService.constrainToScreen(id),
   getMinimizedWindows: () => windowService.getMinimizedWindows(),
   inspect: () => windowService.inspect(),
+
+  /**
+   * FSM-specific methods
+   */
+  getFSMState: (id: string) => windowService.getFSMState(id),
+  canExecuteOperation: (id: string, operation: 'close' | 'minimize' | 'maximize' | 'restore' | 'focus') => {
+    return windowService.canExecuteOperation(id, operation);
+  },
+  getFSMStats: () => windowService.getFSMStats()
 };
 
 // Cleanup on module unload
