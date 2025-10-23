@@ -1,34 +1,24 @@
 import { Component, For } from 'solid-js';
 import { pluginLoader } from '@core/plugin-loader';
-import { pluginComponents } from '@plugins';
+import { pluginComponents, getAvailablePlugins } from '../../../plugins';
 
 interface DesktopIconsProps {
   onAppOpen: (pluginId: string) => void;
 }
 
 const DesktopIcons: Component<DesktopIconsProps> = (props) => {
-  const pluginsWithUI = () => {
-    // Access plugins directly from the store
-    const allPlugins = pluginLoader.plugins;
+  const availablePlugins = () => {
+    // Get all available plugin manifests
+    const allPlugins = getAvailablePlugins();
 
-    // Check if plugin has a UI component in the pluginComponents map
-    const plugins = [];
-    for (let i = 0; i < allPlugins.length; i++) {
-      const plugin = allPlugins[i];
-      const pluginId = plugin.manifest.id;
-      const hasUI = !!pluginComponents[pluginId];
-      if (hasUI) {
-        plugins.push(plugin);
-      }
-    }
-
-    return plugins;
+    // Filter plugins that have UI components
+    return allPlugins.filter(plugin => !!pluginComponents[plugin.id]);
   };
 
   return (
     <div class="absolute inset-0 pointer-events-none">
       <div class="grid grid-cols-6 gap-4 p-8 pointer-events-auto">
-        <For each={pluginsWithUI()}>
+        <For each={availablePlugins()}>
           {(plugin) => (
             <button
               class="flex flex-col items-center justify-center p-4 rounded-lg hover:bg-opacity-20 hover:bg-gray-500 transition-colors cursor-pointer"
@@ -36,14 +26,14 @@ const DesktopIcons: Component<DesktopIconsProps> = (props) => {
                 'background-color': 'transparent',
                 color: 'var(--text-primary)'
               }}
-              onClick={() => props.onAppOpen(plugin.manifest.id)}
-              title={plugin.manifest.displayName}
+              onClick={() => props.onAppOpen(plugin.id)}
+              title={plugin.displayName}
             >
               <div class="text-4xl mb-2">
-                {plugin.manifest.icon}
+                {plugin.icon}
               </div>
               <div class="text-xs text-center max-w-full break-words">
-                {plugin.manifest.displayName}
+                {plugin.displayName}
               </div>
             </button>
           )}

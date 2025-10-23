@@ -1,5 +1,5 @@
-import { pluginLoader } from '../core/plugin-loader';
-import type { PluginManifest } from '../core/plugin-loader';
+import { pluginLoader } from '@core/plugin-loader';
+import type { PluginManifest } from '@core/plugin-loader';
 
 // Import plugin UI components and init functions
 import POSUI from './pos/app';
@@ -181,80 +181,59 @@ const settingsManifest: PluginManifest = {
   ]
 };
 
+// Plugin manifests and init functions mapping
+const pluginConfigs: Record<string, { manifest: PluginManifest; init: () => Promise<void> }> = {
+  '@dineapp/pos': { manifest: posManifest, init: posInit },
+  '@dineapp/kds': { manifest: kdsManifest, init: kdsInit },
+  '@dineapp/inventory': { manifest: inventoryManifest, init: inventoryInit },
+  '@dineapp/analytics': { manifest: analyticsManifest, init: analyticsInit },
+  '@dineapp/menu': { manifest: menuManifest, init: menuInit },
+  '@dineapp/settings': { manifest: settingsManifest, init: settingsInit }
+};
+
+// Lazy load individual plugin
+export const loadPlugin = async (pluginId: string) => {
+  const config = pluginConfigs[pluginId];
+  if (!config) {
+    throw new Error(`Plugin ${pluginId} not found`);
+  }
+
+  try {
+    // Create and register plugin
+    const plugin = await pluginLoader.loadPlugin(config.manifest);
+    pluginLoader.updatePlugin(plugin.manifest.id, {
+      lifecycle: {
+        onInit: config.init,
+        onStart: async () => {},
+        onStop: async () => {},
+        onUnload: async () => {}
+      }
+    });
+
+    // Start the plugin to initialize event listeners
+    await pluginLoader.startPlugin(plugin.manifest.id);
+
+    return plugin;
+  } catch (error) {
+    console.error(`Failed to load plugin ${pluginId}:`, error);
+    throw error;
+  }
+};
+
+// Load all plugins (kept for backward compatibility)
 export const loadPlugins = async () => {
   try {
-    // Create and register POS plugin
-    const posPlugin = await pluginLoader.loadPlugin(posManifest);
-    pluginLoader.updatePlugin(posPlugin.manifest.id, {
-      lifecycle: {
-        onInit: posInit,
-        onStart: async () => {},
-        onStop: async () => {},
-        onUnload: async () => {}
-      }
-    });
-
-    // Create and register KDS plugin
-    const kdsPlugin = await pluginLoader.loadPlugin(kdsManifest);
-    pluginLoader.updatePlugin(kdsPlugin.manifest.id, {
-      lifecycle: {
-        onInit: kdsInit,
-        onStart: async () => {},
-        onStop: async () => {},
-        onUnload: async () => {}
-      }
-    });
-
-    // Create and register Inventory plugin
-    const inventoryPlugin = await pluginLoader.loadPlugin(inventoryManifest);
-    pluginLoader.updatePlugin(inventoryPlugin.manifest.id, {
-      lifecycle: {
-        onInit: inventoryInit,
-        onStart: async () => {},
-        onStop: async () => {},
-        onUnload: async () => {}
-      }
-    });
-
-    // Create and register Analytics plugin
-    const analyticsPlugin = await pluginLoader.loadPlugin(analyticsManifest);
-    pluginLoader.updatePlugin(analyticsPlugin.manifest.id, {
-      lifecycle: {
-        onInit: analyticsInit,
-        onStart: async () => {},
-        onStop: async () => {},
-        onUnload: async () => {}
-      }
-    });
-
-    // Create and register Menu plugin
-    const menuPlugin = await pluginLoader.loadPlugin(menuManifest);
-    pluginLoader.updatePlugin(menuPlugin.manifest.id, {
-      lifecycle: {
-        onInit: menuInit,
-        onStart: async () => {},
-        onStop: async () => {},
-        onUnload: async () => {}
-      }
-    });
-
-    // Create and register Settings plugin
-    const settingsPlugin = await pluginLoader.loadPlugin(settingsManifest);
-    pluginLoader.updatePlugin(settingsPlugin.manifest.id, {
-      lifecycle: {
-        onInit: settingsInit,
-        onStart: async () => {},
-        onStop: async () => {},
-        onUnload: async () => {}
-      }
-    });
-
-    // Start all plugins to initialize their event listeners
-    for (const plugin of pluginLoader.plugins) {
-      await pluginLoader.startPlugin(plugin.manifest.id);
+    const pluginIds = Object.keys(pluginConfigs);
+    for (const pluginId of pluginIds) {
+      await loadPlugin(pluginId);
     }
   } catch (error) {
     console.error('Failed to load plugins:', error);
     throw error;
   }
+};
+
+// Get all available plugin manifests (for displaying icons)
+export const getAvailablePlugins = () => {
+  return Object.values(pluginConfigs).map(config => config.manifest);
 };

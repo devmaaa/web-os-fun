@@ -1,6 +1,6 @@
 import { Component } from 'solid-js';
 
-export type WindowState = 'normal' | 'maximized' | 'minimized' | 'minimizing';
+export type WindowState = 'normal' | 'maximized' | 'minimized' | 'minimizing' | 'maximizing' | 'opening' | 'closing' | 'restoring';
 export type SnapEdge = 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
 export interface Window {
@@ -50,8 +50,8 @@ export interface WindowStore {
 }
 
 export interface WindowManager {
-  windows: Window[];
-  openWindow: (pluginId: string, title: string, options?: WindowOptions) => void;
+  get windows(): Window[];
+  openWindow: (pluginId: string, title: string, options?: WindowOptions) => Window;
   closeWindow: (id: string) => void;
   minimizeWindow: (id: string) => void;
   maximizeWindow: (id: string) => void;
@@ -79,33 +79,10 @@ export interface WindowManager {
   getHighestZIndex: () => number;
   constrainToScreen: (id: string) => void;
   getMinimizedWindows: () => Window[];
-  inspect: () => {
-    totalWindows: number;
-    focusedWindow: string | null;
-    zIndexRange: { min: number; max: number };
-    memoryUsage: number;
-    activeListeners: number;
-  };
-}
+  inspect: () => any;
 
-export interface ScreenBounds {
-  width: number;
-  height: number;
-  offsetLeft: number;
-  offsetTop: number;
-}
-
-export interface WindowEvent {
-  id: string;
-  pluginId: string;
-  title: string;
-}
-
-export interface WindowResizedEvent extends WindowEvent {
-  width: number;
-  height: number;
-}
-
-export interface WindowRestoredEvent extends WindowEvent {
-  fromState: WindowState;
+  // FSM-specific methods
+  getFSMState?: (id: string) => string | undefined;
+  canExecuteOperation?: (id: string, operation: 'close' | 'minimize' | 'maximize' | 'restore' | 'focus') => boolean;
+  getFSMStats?: () => any;
 }

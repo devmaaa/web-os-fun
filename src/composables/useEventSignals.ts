@@ -1,5 +1,5 @@
 import { createSignal, onCleanup } from 'solid-js';
-import { eventBus } from '../core/event-bus';
+import { eventBus } from '@core/event-bus';
 
 export function createEventSignal<T>(event: string, initialValue: T) {
   const [value, setValue] = createSignal<T>(initialValue);
