@@ -1,24 +1,35 @@
-import { Component, createSignal, onMount, onCleanup, For, Show, createRoot } from 'solid-js';
+import { Component, createSignal, onMount, onCleanup, For, Show } from 'solid-js';
 import { windowManager } from '@core/window-manager';
 import { pluginLoader } from '@core/plugin-loader';
-import { loadPlugins, pluginComponents } from '@plugins';
-import { DesktopIcons } from '@apps/os-shell/components/DesktopIcons';
-import { WindowManager } from '@apps/os-shell/components/WindowManager';
-import { Taskbar } from '@apps/os-shell/components/Taskbar';
+import { loadPlugin, pluginComponents } from '../../plugins';
+import { DesktopIcons } from './components/DesktopIcons';
+import { WindowManager } from './components/WindowManager';
+import { Taskbar } from './components/Taskbar';
 import './OsShell.css';
 
 const OsShell: Component = () => {
   const [theme, setTheme] = createSignal<'light' | 'dark'>('light');
   const [currentTime, setCurrentTime] = createSignal(new Date());
-  const [isLoading, setIsLoading] = createSignal(true);
 
   const openApp = async (pluginId: string) => {
-    const plugin = pluginLoader.getPlugin(pluginId);
+    // Load plugin on-demand if not already loaded
+    let plugin = pluginLoader.getPlugin(pluginId);
+    if (!plugin) {
+      try {
+        plugin = await loadPlugin(pluginId);
+      } catch (error) {
+        console.error(`Failed to load plugin ${pluginId}:`, error);
+        return;
+      }
+    }
+
     if (plugin) {
       const component = pluginComponents[pluginId];
-      windowManager.openWindow(pluginId, plugin.manifest.displayName, {
-        component
-      });
+      if (component) {
+        windowManager.openWindow(pluginId, plugin.manifest.displayName, {
+          component
+        });
+      }
     }
   };
 
@@ -38,17 +49,6 @@ const OsShell: Component = () => {
       document.documentElement.setAttribute('data-theme', savedTheme);
     }
 
-    // Load plugins within Solid context
-    try {
-      await createRoot(async () => {
-        await loadPlugins();
-      });
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Failed to load plugins:', error);
-      setIsLoading(false);
-    }
-
     // Update clock
     const clockInterval = setInterval(() => {
       setCurrentTime(new Date());
@@ -61,16 +61,6 @@ const OsShell: Component = () => {
 
   return (
     <div class="os-shell h-screen w-screen relative overflow-hidden" style={{ 'background-color': 'var(--bg-primary)' }}>
-      {/* Loading Overlay */}
-      <Show when={isLoading()}>
-        <div class="absolute inset-0 z-50 flex items-center justify-center" style={{ 'background-color': 'var(--bg-primary)' }}>
-          <div class="text-center">
-            <div class="loading-spinner mx-auto mb-4"></div>
-            <p style={{ color: 'var(--text-secondary)' }}>Loading applications...</p>
-          </div>
-        </div>
-      </Show>
-
       {/* Desktop Icons */}
       <DesktopIcons onAppOpen={openApp} />
 

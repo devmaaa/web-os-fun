@@ -11,6 +11,28 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core microkernel systems
+          'core': [
+            'src/core/event-bus/index.ts',
+            'src/core/plugin-loader/index.ts',
+            'src/core/window-manager/index.ts'
+          ],
+          // FSM system (can be large)
+          'fsm': [
+            'src/core/fsm/index.ts',
+            'src/core/fsm/fsm.ts',
+            'src/core/fsm/registry.ts'
+          ],
+          // UI framework
+          'solid': ['solid-js', 'solid-js/store', 'solid-js/web'],
+          // Composables and utilities
+          'composables': ['src/composables/useEventBus.ts']
+        }
+      }
+    }
   },
   resolve: {
     alias: {

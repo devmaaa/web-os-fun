@@ -1,7 +1,7 @@
 import { Component, createSignal, onMount, onCleanup, For, Show } from 'solid-js';
 import { windowManager } from '@core/window-manager';
 import { pluginLoader } from '@core/plugin-loader';
-import { pluginComponents } from '@plugins';
+import { pluginComponents } from '../../../plugins';
 
 interface WindowManagerProps {}
 

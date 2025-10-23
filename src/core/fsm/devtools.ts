@@ -522,10 +522,10 @@ export const FSMDevUtils = {
 };
 
 /**
- * Auto-enable inspector in development mode
+ * Auto-enable inspector in development mode (only when explicitly enabled)
  */
-if (import.meta.env.DEV && typeof window !== 'undefined') {
-  // Enable FSM inspector automatically in development
+if (import.meta.env.DEV && typeof window !== 'undefined' && import.meta.env.VITE_FSM_DEBUG === 'true') {
+  // Enable FSM inspector only when explicitly requested
   fsmInspector.enable();
 
   // Add global utilities to window for debugging
@@ -537,4 +537,17 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   console.log('  - window.fsmInspector: Visual FSM debugging');
   console.log('  - window.fsmProfiler: Performance profiling');
   console.log('  - window.fsmDevUtils: Debug utilities');
+} else if (import.meta.env.DEV && typeof window !== 'undefined') {
+  // Provide lazy loading option for debugging
+  console.log('💡 FSM Developer Tools available. Set VITE_FSM_DEBUG=true to enable.');
+  console.log('   You can also enable manually: window.enableFSMDebug()');
+
+  // Add lazy enable function to window
+  (window as any).enableFSMDebug = () => {
+    fsmInspector.enable();
+    (window as any).fsmInspector = fsmInspector;
+    (window as any).fsmProfiler = fsmProfiler;
+    (window as any).fsmDevUtils = FSMDevUtils;
+    console.log('🔧 FSM Developer Tools enabled manually');
+  };
 }
