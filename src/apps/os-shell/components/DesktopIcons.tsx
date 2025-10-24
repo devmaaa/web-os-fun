@@ -1,6 +1,6 @@
 import { Component, For } from 'solid-js';
 import { pluginLoader } from '@core/plugin-loader';
-import { pluginComponents, getAvailablePlugins } from '../../../plugins';
+import { pluginComponents, getAvailablePlugins } from '@plugins/index';
 
 interface DesktopIconsProps {
   onAppOpen: (pluginId: string) => void;
