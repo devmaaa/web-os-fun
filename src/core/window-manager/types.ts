@@ -3,6 +3,13 @@ import { Component } from 'solid-js';
 export type WindowState = 'normal' | 'maximized' | 'minimized' | 'minimizing' | 'maximizing' | 'opening' | 'closing' | 'restoring';
 export type SnapEdge = 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
+export interface ScreenBounds {
+  width: number;
+  height: number;
+  offsetLeft: number;
+  offsetTop: number;
+}
+
 export interface Window {
   id: string;
   title: string;
@@ -53,7 +60,7 @@ export interface WindowManager {
   get windows(): Window[];
   openWindow: (pluginId: string, title: string, options?: WindowOptions) => Window;
   closeWindow: (id: string) => void;
-  minimizeWindow: (id: string) => void;
+  minimizeWindow: (id: string) => Promise<void>;
   maximizeWindow: (id: string) => void;
   toggleMaximizeWindow: (id: string) => void;
   restoreWindow: (id: string) => void;

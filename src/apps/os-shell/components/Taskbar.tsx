@@ -35,6 +35,7 @@ const Taskbar: Component<TaskbarProps> = (props) => {
         <For each={windowManager.windows}>
           {(window) => (
             <button
+                data-window-id={window.id}
               class="px-3 py-2 rounded text-sm"
               style={{
                 'background-color': window.focused ? 'var(--accent-color)' : 'transparent',

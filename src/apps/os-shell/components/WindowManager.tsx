@@ -91,9 +91,12 @@ const WindowManager: Component<WindowManagerProps> = () => {
   return (
     <For each={windowManager.windows}>
       {(window) => (
-        <Show when={window.state !== 'minimized'}>
+        <Show when={window.state !== 'minimized' && window.state !== 'closing'}>
           <div
-            class="window absolute rounded-lg overflow-hidden border"
+            class={`window window-wrapper absolute rounded-lg overflow-hidden border ${
+              window.state === 'minimizing' ? 'pointer-events-none' : ''
+            }`}
+            data-window-id={window.id}
             style={{
               left: `${window.x}px`,
               top: `${window.y}px`,
@@ -104,7 +107,7 @@ const WindowManager: Component<WindowManagerProps> = () => {
               'border-color': 'var(--border-color)',
               // GPU acceleration for dragging (spec requirement)
               transform: window.isDragging ? `translate3d(0, 0, 0)` : 'none',
-              willChange: window.isDragging ? 'transform' : 'auto',
+              'will-change': window.isDragging ? 'transform' : 'auto',
               // Visual feedback for drag state
               opacity: window.isDragging ? 0.8 : (window.isPreview ? 0.7 : 1),
               transition: window.isDragging ? 'none' : 'opacity 0.2s ease'
