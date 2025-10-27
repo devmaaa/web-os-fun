@@ -19,6 +19,8 @@ import {
     animateWindowGenieLamp,
     animateWindowGenieReverse
 } from './utils';
+import { resizeManager } from './resize-manager';
+import type { ResizeHandle } from './use-resize-calculations';
 
 
 export class WindowService {
@@ -104,6 +106,7 @@ export class WindowService {
             'maximizing': 'maximizing',
             'maximized': 'maximized',
             'restoring': 'restoring',
+            'resizing': 'resizing',
             'closing': 'closing'
         };
         return stateMapping[fsmState] as WindowState || 'normal';
@@ -183,6 +186,9 @@ export class WindowService {
             isDragging: false,
             isResizing: false,
             isPreview: false,
+            minWidth: options.minWidth ?? 200,
+            minHeight: options.minHeight ?? 150,
+            resizable: options.resizable ?? true,
             component: options.component,
             props: options.props,
             createdAt: new Date(),
@@ -639,6 +645,79 @@ export class WindowService {
         this.withStore(id, (store) => store.update('isPreview', false));
     }
 
+    // ==== Resize Methods ====
+
+    /**
+     * Start resizing a window with specified handle
+     */
+    startWindowResize(id: string, handle: ResizeHandle, event: MouseEvent) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+
+            // Check if window is resizable
+            if (!win.resizable) {
+                console.warn(`[WindowService] Window "${id}" is not resizable`);
+                return;
+            }
+
+            // Check FSM state
+            if (!this.canResizeWindow(id)) {
+                console.warn(`[WindowService] Cannot resize window "${id}" - FSM state doesn't allow it`);
+                return;
+            }
+
+            // Update window state to show resize handle
+            store.update('resizeHandle', handle);
+            store.update('isResizing', true);
+
+            // Delegate to resize manager for actual resize handling
+            // The resize manager will handle FSM transitions
+        });
+    }
+
+    /**
+     * End resizing a window
+     */
+    endWindowResize(id: string) {
+        this.withStore(id, (store) => {
+            const win = store.state;
+
+            if (!win.isResizing) {
+                return;
+            }
+
+            // Update window state
+            store.update('isResizing', false);
+            store.update('resizeHandle', undefined);
+
+            // FSM state will be handled by resize manager
+        });
+    }
+
+    /**
+     * Check if a window can be resized
+     */
+    canResizeWindow(id: string): boolean {
+        const store = getWindowStore(id);
+        if (!store) return false;
+
+        const win = store.state;
+        if (!win.resizable) return false;
+
+        // Check FSM state
+        const fsm = this.getFSM(id);
+        if (!fsm) return false;
+
+        return fsm.can('resize_start');
+    }
+
+    /**
+     * Get resize performance metrics
+     */
+    getResizeMetrics() {
+        return resizeManager.getPerformanceMetrics();
+    }
+
     getSelectedWindows() {
         return this.getWindowsSnapshot().filter(w => w.selected);
     }
@@ -684,7 +763,7 @@ export class WindowService {
         return fsm?.getState();
     }
 
-    canExecuteOperation(id: string, operation: 'close' | 'minimize' | 'maximize' | 'restore' | 'focus'): boolean {
+    canExecuteOperation(id: string, operation: 'close' | 'minimize' | 'maximize' | 'restore' | 'focus' | 'resize_start' | 'resize_end'): boolean {
         const fsm = this.getFSM(id);
         return fsm ? fsm.can(operation) : false;
     }

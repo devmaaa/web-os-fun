@@ -53,7 +53,7 @@ const WINDOW_TRANSITIONS: Record<WindowState, Partial<Record<WindowEvent, Window
     minimize: 'minimizing',
     maximize: 'maximizing',
     close: 'closing',
-    resize_start: 'normal', // Can start resizing from normal
+    resize_start: 'resizing', // Can start resizing from normal
     focus: 'normal',
     blur: 'normal'
   },
@@ -94,6 +94,14 @@ const WINDOW_TRANSITIONS: Record<WindowState, Partial<Record<WindowEvent, Window
     maximize: 'maximizing', // Can maximize during restore
     minimize: 'minimizing', // Can minimize during restore
     close: 'closing' // Can close during restore
+  },
+
+  // Resizing is a transitional state
+  resizing: {
+    resize_end: 'normal', // Complete resizing and return to normal
+    minimize: 'minimizing', // Can minimize during resize
+    maximize: 'maximizing', // Can maximize during resize
+    close: 'closing' // Can close during resize
   },
 
   // Closing is a transitional state
@@ -408,6 +416,59 @@ export class WindowFSMManager {
     }
 
     return result;
+  }
+
+  /**
+   * Start resizing a window
+   */
+  startResizeWindow(windowId: string): boolean {
+    const fsm = this.windows.get(windowId);
+    if (!fsm) {
+      console.warn(`[WindowFSM] Cannot start resizing window "${windowId}" - not found`);
+      return false;
+    }
+
+    const context = fsm.getContext() as WindowContext;
+    if (!context.resizable) {
+      console.warn(`[WindowFSM] Cannot resize window "${windowId}" - not resizable`);
+      return false;
+    }
+
+    if (!fsm.can('resize_start')) {
+      console.warn(`[WindowFSM] Cannot start resizing window "${windowId}" - not resizable in current state`);
+      return false;
+    }
+
+    return fsm.transition('resize_start') !== null;
+  }
+
+  /**
+   * End resizing a window
+   */
+  endResizeWindow(windowId: string): boolean {
+    const fsm = this.windows.get(windowId);
+    if (!fsm) {
+      console.warn(`[WindowFSM] Cannot end resizing window "${windowId}" - not found`);
+      return false;
+    }
+
+    if (!fsm.can('resize_end')) {
+      console.warn(`[WindowFSM] Cannot end resizing window "${windowId}" - not currently resizing`);
+      return false;
+    }
+
+    return fsm.transition('resize_end') !== null;
+  }
+
+  /**
+   * Check if a window can be resized
+   */
+  canResizeWindow(windowId: string): boolean {
+    const fsm = this.windows.get(windowId);
+    if (!fsm) return false;
+
+    const context = fsm.getContext() as WindowContext;
+    return context.resizable && fsm.can('resize_start');
   }
 
   /**

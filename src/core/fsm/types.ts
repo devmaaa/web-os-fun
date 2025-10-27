@@ -114,6 +114,7 @@ export interface WindowLifecycleStates {
   MAXIMIZED: 'maximized';
   RESTORING: 'restoring';
   CLOSING: 'closing';
+  RESIZING: 'resizing';
 }
 
 // Window Lifecycle Events
@@ -310,6 +311,11 @@ export interface WindowContext {
   minimizable: boolean;
   focused: boolean;
   zOrder: number;
+  resizeHandle?: 'bottom-left' | 'bottom-right' | 'bottom';
+  resizeStartX?: number;
+  resizeStartY?: number;
+  resizeStartWidth?: number;
+  resizeStartHeight?: number;
 }
 
 /**

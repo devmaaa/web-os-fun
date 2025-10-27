@@ -1,6 +1,7 @@
 import { Component } from 'solid-js';
+import type { ResizeHandle } from './use-resize-calculations';
 
-export type WindowState = 'normal' | 'maximized' | 'minimized' | 'minimizing' | 'maximizing' | 'opening' | 'closing' | 'restoring';
+export type WindowState = 'normal' | 'maximized' | 'minimized' | 'minimizing' | 'maximizing' | 'opening' | 'closing' | 'restoring' | 'resizing';
 export type SnapEdge = 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
 export interface ScreenBounds {
@@ -28,6 +29,10 @@ export interface Window {
   isResizing: boolean;
   isPreview: boolean;
   snapEdge?: SnapEdge;
+  minWidth?: number;
+  minHeight?: number;
+  resizable: boolean;
+  resizeHandle?: ResizeHandle;
   component?: Component; // Solid component reference
   props?: Record<string, any>; // Initial props
   createdAt: Date; // Timestamp
@@ -48,6 +53,9 @@ export interface WindowOptions {
   x?: number;
   y?: number;
   alwaysOnTop?: boolean;
+  minWidth?: number;
+  minHeight?: number;
+  resizable?: boolean;
 }
 
 export interface WindowStore {
@@ -68,6 +76,9 @@ export interface WindowManager {
   blurWindow: (id: string) => void;
   updateWindowPosition: (id: string, x: number, y: number) => void;
   updateWindowSize: (id: string, width: number, height: number) => void;
+  startWindowResize: (id: string, handle: ResizeHandle, event: MouseEvent) => void;
+  endWindowResize: (id: string) => void;
+  canResizeWindow: (id: string) => boolean;
   snapWindow: (id: string, edge: SnapEdge) => void;
   selectWindow: (id: string, multi?: boolean) => void;
   deselectWindow: (id: string) => void;

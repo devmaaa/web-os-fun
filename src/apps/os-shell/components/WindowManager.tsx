@@ -6,6 +6,133 @@ import { pluginComponents } from '../../../plugins';
 interface WindowManagerProps {}
 
 const WindowManager: Component<WindowManagerProps> = () => {
+  // Add CSS styles for resize handles that can't be done with Tailwind
+  onMount(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Resize handles - positioning and cursor styles */
+      .resize-handle {
+        position: absolute;
+        background: transparent;
+        z-index: 1000;
+        opacity: 0;
+        transition: all 0.2s ease;
+        pointer-events: auto;
+      }
+
+      .resize-handle:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(1px);
+      }
+
+      .resize-handle-bottom-left {
+        bottom: 0;
+        left: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 0 0 0 8px;
+        cursor: nesw-resize;
+      }
+
+      .resize-handle-bottom-right {
+        bottom: 0;
+        right: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 0 0 8px 0;
+        cursor: nwse-resize;
+      }
+
+      .resize-handle-bottom {
+        bottom: 0;
+        left: 12px;
+        right: 12px;
+        height: 6px;
+        cursor: ns-resize;
+      }
+
+      /* Corner handle hover - show L-shaped border */
+      .resize-handle-bottom-left:hover {
+        border-left: 1px solid rgba(255, 255, 255, 0.3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .resize-handle-bottom-right:hover {
+        border-right: 1px solid rgba(255, 255, 255, 0.3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      /* Edge handle hover - show line */
+      .resize-handle-bottom:hover {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      /* Show handles when window is being resized */
+      .window[data-resizing="true"] .resize-handle {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .window[data-resizing="true"] .resize-handle-bottom-left {
+        border-left: 1px solid rgba(255, 255, 255, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .window[data-resizing="true"] .resize-handle-bottom-right {
+        border-right: 1px solid rgba(255, 255, 255, 0.5);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .window[data-resizing="true"] .resize-handle-bottom {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      /* Custom scrollbar styling */
+      .window-content::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      .window-content::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .window-content::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+      }
+
+      .window-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+
+      /* Ensure content container fits properly */
+      .window-content {
+        box-sizing: border-box;
+        overflow: auto;
+        flex: 1;
+        min-height: 0;
+      }
+
+      /* Prevent content interaction during resize */
+      .window[data-resizing="true"] .window-content {
+        pointer-events: none;
+        user-select: none;
+      }
+
+      /* Ensure all content elements respect container bounds */
+      .window-content > * {
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  });
   // Drag state following spec requirements
   const [dragState, setDragState] = createSignal<{
     windowId: string | null;
@@ -93,8 +220,10 @@ const WindowManager: Component<WindowManagerProps> = () => {
       {(window) => (
         <Show when={window.state !== 'minimized' && window.state !== 'closing'}>
           <div
-            class={`window window-wrapper absolute rounded-lg overflow-hidden border ${
+            class={`window window-wrapper absolute border transition-all duration-200 ${
               window.state === 'minimizing' ? 'pointer-events-none' : ''
+            } ${window.isDragging ? 'opacity-90' : ''} ${window.isPreview ? 'opacity-70' : ''} ${
+              window.isResizing ? 'pointer-events-none' : ''
             }`}
             data-window-id={window.id}
             style={{
@@ -107,20 +236,20 @@ const WindowManager: Component<WindowManagerProps> = () => {
               'border-color': 'var(--border-color)',
               // GPU acceleration for dragging (spec requirement)
               transform: window.isDragging ? `translate3d(0, 0, 0)` : 'none',
-              'will-change': window.isDragging ? 'transform' : 'auto',
-              // Visual feedback for drag state
-              opacity: window.isDragging ? 0.8 : (window.isPreview ? 0.7 : 1),
-              transition: window.isDragging ? 'none' : 'opacity 0.2s ease'
+              'will-change': window.isDragging ? 'transform' : 'auto'
             }}
+            data-resizing={window.isResizing ? 'true' : 'false'}
           >
             {/* Title Bar */}
             <div
-              class="flex justify-between items-center px-3 py-2 cursor-move border-b"
+              class={`flex justify-between items-center px-4 py-2 cursor-move select-none text-sm font-medium ${
+                window.isResizing ? 'pointer-events-none' : ''
+              }`}
               style={{
-                'background-color': 'var(--bg-secondary)',
-                'border-color': 'var(--border-color)',
-                color: 'var(--text-primary)',
-                'user-select': 'none'
+                'background': 'linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary))',
+                'border-bottom': '1px solid var(--border-color)',
+                'border-radius': '8px 8px 0 0',
+                color: 'var(--text-primary)'
               }}
               onMouseDown={(e) => handleMouseDown(e, window.id)}
             >
@@ -130,9 +259,9 @@ const WindowManager: Component<WindowManagerProps> = () => {
                 </div>
                 <span class="text-sm font-semibold select-none">{window.title}</span>
               </div>
-              <div class="flex space-x-1">
+              <div class="flex items-center gap-1.5">
                 <button
-                  class="w-6 h-6 rounded bg-yellow-500 text-white text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-[10px] font-black leading-none"
                   onClick={() => windowManager.minimizeWindow(window.id)}
                   disabled={!windowManager.canExecuteOperation?.(window.id, 'minimize')}
                   title={windowManager.canExecuteOperation?.(window.id, 'minimize') ? 'Minimize' : 'Cannot minimize in current state'}
@@ -140,7 +269,7 @@ const WindowManager: Component<WindowManagerProps> = () => {
                   −
                 </button>
                 <button
-                  class="w-6 h-6 rounded bg-green-500 text-white text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-[10px] font-black leading-none"
                   onClick={() => windowManager.toggleMaximizeWindow(window.id)}
                   disabled={!windowManager.canExecuteOperation?.(window.id, 'maximize') && window.state !== 'maximized'}
                   title={windowManager.canExecuteOperation?.(window.id, 'maximize') || window.state === 'maximized' ? (window.state === 'maximized' ? 'Restore' : 'Maximize') : 'Cannot maximize in current state'}
@@ -148,7 +277,7 @@ const WindowManager: Component<WindowManagerProps> = () => {
                   {window.state === 'maximized' ? '❐' : '□'}
                 </button>
                 <button
-                  class="w-6 h-6 rounded bg-red-500 text-white text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-[10px] font-black leading-none"
                   onClick={() => windowManager.closeWindow(window.id)}
                   disabled={!windowManager.canExecuteOperation?.(window.id, 'close')}
                   title={windowManager.canExecuteOperation?.(window.id, 'close') ? 'Close' : 'Cannot close in current state'}
@@ -160,24 +289,54 @@ const WindowManager: Component<WindowManagerProps> = () => {
 
             {/* Content */}
             <div
-              class="p-4 h-full overflow-auto"
+              class="window-content overflow-auto"
               style={{
                 'background-color': 'var(--bg-secondary)',
-                color: 'var(--text-primary)'
+                color: 'var(--text-primary)',
+                'border-radius': '0 0 8px 8px',
+                // Calculate proper height (total window height - title bar height)
+                height: `calc(${window.height}px - 40px)`, // 40px for title bar
+                // Calculate proper width (full window width)
+                width: `${window.width}px`,
+                // Ensure content fits properly
+                'box-sizing': 'border-box',
+                'overflow': 'auto'
               }}
             >
               {(() => {
                 const PluginComponent = window.component || pluginComponents[window.pluginId];
                 return PluginComponent ? <PluginComponent /> : (
-                  <div class="flex items-center justify-center h-full">
-                    <div class="text-center">
-                      <div class="text-6xl mb-4">📱</div>
-                      <p style={{ color: 'var(--text-secondary)' }}>Content for {window.title}</p>
-                      <p style={{ color: 'var(--text-secondary)' }}>Plugin ID: {window.pluginId}</p>
-                      <p style={{ color: 'var(--text-secondary)' }}>Window ID: {window.id}</p>
-                      <div style={{ color: 'var(--text-muted)', 'font-size': '0.75rem', 'margin-top': '0.5rem' }}>
+                  <div class="flex flex-col items-center justify-center p-4 min-h-[150px] box-border">
+                    <div class="text-center max-w-full box-border">
+                      <div class="text-3xl mb-2">📱</div>
+                      <p class="text-xs break-words mb-1" style={{ color: 'var(--text-secondary)' }}>Content for {window.title}</p>
+                      <p class="text-xs break-words mb-1" style={{ color: 'var(--text-secondary)' }}>Plugin ID: {window.pluginId}</p>
+                      <p class="text-xs break-words mb-2" style={{ color: 'var(--text-secondary)' }}>Window ID: {window.id}</p>
+                      <div class="text-xs space-y-1" style={{ color: 'var(--text-muted)' }}>
+                        <p>Size: {window.width}×{window.height}</p>
                         <p>State: {window.state}</p>
                         <p>FSM State: {windowManager.getFSMState?.(window.id) || 'N/A'}</p>
+                        {window.isResizing && <p class="text-green-500 font-bold">🔄 Resizing...</p>}
+                      </div>
+
+                      {/* Interactive content to test resize behavior */}
+                      <div class="mt-3 p-2 border rounded box-border" style={{
+                        'border-color': 'var(--border-color)',
+                        'background-color': 'var(--bg-primary)',
+                        'max-width': '100%'
+                      }}>
+                        <p class="text-xs mb-1">🧪 Resize Test Area</p>
+                        <div class="flex gap-1 justify-center flex-wrap">
+                          <button
+                            class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors"
+                            onClick={() => alert('Button clicked!')}
+                          >
+                            Test Button
+                          </button>
+                          <div class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">
+                            {window.width}×{window.height}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
