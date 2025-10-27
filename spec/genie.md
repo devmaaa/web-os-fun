@@ -1,6 +1,6 @@
-Genie Lamp Animation Specification Document
+WebOS Genie Lamp Animation Specification Document
 Overview
-This specification describes the implementation of a macOS-style genie lamp animation effect for window minimization/expansion using Canvas API and html2canvas library in a SolidJS + Tailwind CSS application.
+This specification describes the implementation of a macOS-style genie lamp animation effect for window minimization/expansion using Canvas API and html2canvas library in a SolidJS + Tailwind CSS application for WebOS.
 Animation Characteristics
 Visual Behavior
 The genie lamp effect should replicate the iconic macOS window minimize animation where:

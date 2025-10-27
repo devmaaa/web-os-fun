@@ -1,11 +1,11 @@
 📘 window-manager-spec.md
 
 Subsystem: OS UI Layer
-Context: Desktop-style environment for DineApp OS
+Context: Desktop-style environment for WebOS
 
 1. Purpose
 
-The Window Manager provides the desktop environment abstraction within DineApp OS.
+The Window Manager provides the desktop environment abstraction within WebOS.
 It manages all visual windows, their states, focus, z-order, and lifecycle events.
 
 2. Core Responsibilities
@@ -14,7 +14,7 @@ It manages all visual windows, their states, focus, z-order, and lifecycle event
    State Tracking	Maintain list of open, focused, minimized windows.
    Event Emission	Emit lifecycle events (window:opened, window:closed, etc.).
    Taskbar Integration	Expose minimized windows to taskbar.
-   Multi-Window Management	Support concurrent plugin windows.
+   Multi-Window Management	Support concurrent application windows.
    Theme & Layout Integration	Respond to theme engine changes and layout config.
 3. Window States
 
@@ -46,7 +46,7 @@ Each window has a descriptor:
 
 Field	Description
 id	Unique runtime ID
-pluginId	Source plugin
+appId	Source application
 title	Display name
 state	Current state
 zIndex	Render order
@@ -55,7 +55,7 @@ props	Initial props
 createdAt	Timestamp
 7. Window Creation Flow
 
-Plugin calls windowManager.openWindow(pluginId, component, options).
+Application calls windowManager.openWindow(appId, component, options).
 
 Core instantiates window descriptor.
 
@@ -84,7 +84,7 @@ Subscribe to window events via useEventBus().
 
 Maintain minimal logic inside window shell.
 
-Unsubscribe on plugin unload.
+Unsubscribe on application unload.
 
 ❌ DON’T
 

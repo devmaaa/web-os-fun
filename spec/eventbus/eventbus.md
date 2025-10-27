@@ -2,11 +2,11 @@
 
 Version: 1.0
 Subsystem: Core Messaging & Reactive Communication
-System: DineApp OS (Solid.js + Microkernel Architecture)
+System: WebOS (Solid.js + Microkernel Architecture)
 
 🧭 Overview
 
-DineApp OS uses a layered, deterministic EventBus system for all cross-component, plugin, and window communication.
+WebOS uses a layered, deterministic EventBus system for all cross-component, application, and window communication.
 It forms the messaging backbone for the entire OS, ensuring clean, decoupled, and reactive behavior between modules, stores, and UI components.
 
 🧩 Architecture Layers
@@ -36,9 +36,9 @@ useEmit() — emit helpers.
 
 createEventSignal() / createEventAccumulator() — reactive wrappers.
 
-3. Plugin / Window Layer
+3. Application / Window Layer
 
-Plugins (POS, KDS, CRM, Inventory, Analytics, etc.) consume and emit domain-level events.
+Applications (File Manager, Text Editor, Browser, Media Player, etc.) consume and emit domain-level events.
 
 UI components subscribe through composables, ensuring automatic cleanup.
 
@@ -46,13 +46,13 @@ UI components subscribe through composables, ensuring automatic cleanup.
 Capability	Description
 Event Registration	Register listeners with optional scope, priority, and “once” execution.
 Emission	Async (emit) and synchronous (emitSync) dispatch.
-Scope Isolation	Separate plugin contexts; auto cleanup via offAll(scope).
-Lifecycle Management	Deterministic listener cleanup on component unmount or plugin unload.
+Scope Isolation	Separate application contexts; auto cleanup via offAll(scope).
+Lifecycle Management	Deterministic listener cleanup on component unmount or application unload.
 Diagnostics	Provide visibility into active events, listener counts, and memory footprint.
 🧭 Usage Strategy
 1. Direct eventBus (System-Level)
 
-Used by: Core modules, plugin bootstraps, data stores, background services.
+Used by: Core modules, application bootstraps, data stores, background services.
 Lifecycle: Managed manually.
 Responsibilities:
 
@@ -60,7 +60,7 @@ Register global or background event handlers.
 
 Emit events that persist beyond UI lifecycle.
 
-Call offAll(scopeId) when plugin or service unloads.
+Call offAll(scopeId) when application or service unloads.
 
 2. useEventBus() (UI-Level)
 
@@ -126,9 +126,10 @@ Follow descriptive, namespaced naming using the domain:action convention.
 
 Category	Examples
 Window Events	window:opened, window:closed, window:minimized, window:focused
-Order Events	order:created, order:updated, order:cancelled
+File System Events	file:created, file:opened, file:modified, file:deleted
+Application Events	app:loaded, app:unloaded, app:focused
 User Events	user:logged-in, user:logged-out
-System Events	plugin:loaded, plugin:unloaded, os:ready
+System Events	os:ready, theme:changed, notification:shown
 
 Avoid generic events like update, delete, or save that lack context.
 
@@ -164,15 +165,15 @@ Stress	Simulate 10k+ events under load; ensure no leaks or duplicates.
 DevTools	Visual diagnostics panel subscribed to "__diagnostics" events.
 🧭 Summary
 
-The DineApp OS EventBus is a core system-level communication layer that ensures:
+The WebOS EventBus is a core system-level communication layer that ensures:
 
 Predictable, leak-free, and deterministic event flow.
 
-Clean integration with Solid’s lifecycle system.
+Clean integration with Solid's lifecycle system.
 
-Clear separation between plugin logic, background services, and UI state.
+Clear separation between application logic, background services, and UI state.
 
 Extensible diagnostics and tooling for developer visibility.
 
 Golden Rule:
-“In UI → useEventBus(); in core → eventBus; in analytics → signals.”
+"In UI → useEventBus(); in core → eventBus; in analytics → signals."

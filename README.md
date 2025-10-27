@@ -1,10 +1,10 @@
-# 🍽️ DineApp - Modern Restaurant Management System
+# 🌐 WebOS - Modern Web-Based Operating System
 
 <div align="center">
 
-![DineApp Logo](https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=DineApp)
+![WebOS Logo](https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=WebOS)
 
-**A modular, plugin-based restaurant management platform built with modern web technologies**
+**A complete web-based operating system with modular, plugin-based architecture built with modern web technologies**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-4F46E5?logo=typescript)](https://www.typescriptlang.org/)
@@ -15,12 +15,20 @@
 
 ## ✨ Features
 
+### 🖥️ Desktop Environment
+- **Multi-Window Interface**: Full desktop experience with draggable, resizable windows
+- **Taskbar & Dock**: Complete desktop navigation with app launcher and system tray
+- **Window Management**: Minimize, maximize, snap-to-screen, and z-index management
+- **Desktop Icons**: Customizable desktop with shortcuts to applications
+- **Alt+Tab Navigation**: Switch between running applications
+
 ### 🏗️ Core Architecture
-- **Plugin-Based System**: Modular architecture with pluggable components
-- **Event-Driven**: Robust event bus for inter-plugin communication
-- **Multi-Window Support**: Dedicated windows for different restaurant operations
+- **Plugin-Based System**: Modular architecture with pluggable applications
+- **Event-Driven**: Robust event bus for inter-application communication
+- **Multi-Window Support**: Dedicated windows for different applications and tasks
+- **Finite State Machine**: Deterministic state management for all subsystems
 - **Real-time Communication**: Built-in support for multi-tab synchronization
-- **TypeScript-First**: Full type safety across the entire application
+- **TypeScript-First**: Full type safety across the entire operating system
 
 ### 🔧 Core Systems
 - **Authentication & Permissions**: Role-based access control
@@ -31,22 +39,25 @@
 - **Telemetry**: Usage analytics and monitoring
 - **Local Cache**: Optimized data caching
 
-### 📱 Available Plugins
+### 📱 Available Applications
 
-| Plugin | Description | Icon | Status |
-|--------|-------------|------|--------|
-| **💰 POS Terminal** | Point of Sale interface for order taking and payment processing | 💰 | ✅ Active |
-| **🍽️ Menu Management** | Digital menu creation and management | 📋 | ✅ Active |
-| **📦 Inventory** | Stock tracking and management system | 📦 | ✅ Active |
-| **👨‍🍳 Kitchen Display System** | Order display for kitchen staff | 👨‍🍳 | ✅ Active |
-| **📊 Analytics** Business intelligence and reporting | 📊 | ✅ Active |
+| Application | Description | Icon | Status |
+|-------------|-------------|------|--------|
+| **📁 File Manager** | File system navigation and management | 📁 | ✅ Active |
+| **📝 Text Editor** | Rich text editing and document creation | 📝 | ✅ Active |
+| **🖼️ Image Viewer** | View and edit images | 🖼️ | ✅ Active |
+| **🌐 Web Browser** | Web browsing application | 🌐 | ✅ Active |
+| **📊 Analytics** | System monitoring and analytics | 📊 | ✅ Active |
 | **⚙️ Settings** | System configuration and preferences | ⚙️ | ✅ Active |
+| **🎮 Media Player** | Audio and video playback | 🎮 | ✅ Active |
+| **💬 Terminal** | Command line interface | 💬 | ✅ Active |
 
 ### 🔌 External Integrations
-- **💳 Payment Gateways**: Extensible payment processing
-- **🖨️ Printers**: Kitchen and receipt printer support
+- **💾 Storage**: Local and cloud storage providers
+- **🖨️ Printers**: Print driver support for various printers
 - **📢 Notifications**: Real-time alerts and messaging
-- **💾 Database**: Flexible database abstraction layer
+- **🌐 Network**: Network and connectivity adapters
+- **🔐 Security**: Authentication and security service integrations
 
 ## 🚀 Getting Started
 
@@ -58,8 +69,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/devmaaa/os.dineapp.git
-cd os.dineapp
+git clone https://github.com/devmaaa/webos.git
+cd webos
 
 # Install dependencies
 bun install
@@ -68,7 +79,7 @@ bun install
 bun run dev
 ```
 
-The application will be available at `http://localhost:3000`
+The WebOS will be available at `http://localhost:3200`
 
 ### Build for Production
 
@@ -82,7 +93,7 @@ bun run serve
 
 ## 🏛️ Architecture Overview
 
-DineApp OS follows a **microkernel architecture** with **Feature-Sliced Design (FSD)** principles, creating a modular, OS-like restaurant management platform.
+WebOS follows a **microkernel architecture** with **Feature-Sliced Design (FSD)** principles, creating a complete, modular web-based operating system.
 
 ### Core Philosophy
 - **Microkernel Extensibility**: Core + Plugins with schema-driven configuration
@@ -95,12 +106,13 @@ DineApp OS follows a **microkernel architecture** with **Feature-Sliced Design (
 
 ```
 ┌────────────────────────────────────────────┐
-│              DineApp OS Core               │
+│                WebOS Core                 │
 │────────────────────────────────────────────│
 │ 🧠 Microkernel                             │
 │  • Plugin Loader                           │
 │  • Event Bus (Scoped + Leak-safe)          │
 │  • Window Manager                          │
+│  • Finite State Machine (FSM) System       │
 │  • State Manager                           │
 │  • Config Engine                           │
 │  • Theme Engine                            │
@@ -116,10 +128,12 @@ DineApp OS follows a **microkernel architecture** with **Feature-Sliced Design (
 ▲
 │
 ┌──────────────┴──────────────┐
-│          Plugins            │
+│          Applications       │
 │─────────────────────────────│
-│ POS / KDS / CRM / Analytics │
-│ Inventory / Tables / Menu   │
+│ File Manager / Text Editor  │
+│ Media Player / Browser      │
+│ Terminal / Analytics       │
+│ Settings / System Apps     │
 └──────────────▲──────────────┘
 │
 Solid.js Windows (UI)
@@ -128,12 +142,13 @@ Solid.js Windows (UI)
 ### Directory Structure
 
 ```
-dineapp/
+webos/
 ├── src/
 │   ├── core/                    # Core systems
 │   │   ├── auth-permissions/    # Authentication & RBAC
 │   │   ├── config-engine/       # Configuration management
-│   │   ├── event-bus/          # Inter-plugin communication
+│   │   ├── event-bus/          # Inter-application communication
+│   │   ├── fsm/                # Finite State Machine system
 │   │   ├── i18n/               # Internationalization
 │   │   ├── plugin-loader/      # Plugin system
 │   │   ├── storage-abstraction/# Storage interface
@@ -143,38 +158,42 @@ dineapp/
 │   ├── ports/                   # External integrations
 │   │   ├── db/                 # Database adapters
 │   │   ├── notif/              # Notification systems
-│   │   ├── payments/           # Payment gateways
-│   │   └── printers/           # Printer drivers
-│   ├── plugins/                 # Application plugins
-│   │   ├── pos/                # Point of Sale
-│   │   ├── menu/               # Menu Management
-│   │   ├── inventory/          # Inventory System
-│   │   ├── kds/                # Kitchen Display System
-│   │   ├── analytics/          # Business Intelligence
+│   │   ├── network/            # Network adapters
+│   │   ├── printers/           # Printer drivers
+│   │   └── security/           # Security integrations
+│   ├── apps/                    # System applications
+│   │   ├── file-manager/       # File management
+│   │   ├── text-editor/        # Text editing
+│   │   ├── media-player/       # Media playback
+│   │   ├── browser/            # Web browsing
+│   │   ├── terminal/           # Command line interface
+│   │   ├── analytics/          # System monitoring
 │   │   └── settings/           # System Settings
+│   ├── plugins/                 # Third-party applications
+│   │   └── [user-plugins]/     # User-installed applications
 │   └── composables/            # Reusable logic
 ```
 
-## 🔌 Plugin Development
+## 🔌 Application Development
 
-### Creating a New Plugin
+### Creating a New Application
 
-DineApp plugins follow **Feature-Sliced Design (FSD)** principles for clean, maintainable architecture.
+WebOS applications follow **Feature-Sliced Design (FSD)** principles for clean, maintainable architecture.
 
-1. **Create Plugin Directory Structure**:
+1. **Create Application Directory Structure**:
 ```bash
-mkdir src/plugins/my-plugin
-cd src/plugins/my-plugin
+mkdir src/apps/my-app
+cd src/apps/my-app
 mkdir -p entities features widgets pages stores composables shared
 ```
 
-2. **Create Plugin Manifest** (`manifest.json`):
+2. **Create Application Manifest** (`manifest.json`):
 ```json
 {
-  "id": "@dineapp/my-plugin",
-  "displayName": "My Plugin",
+  "id": "@webos/my-app",
+  "displayName": "My App",
   "version": "1.0.0",
-  "description": "Description of my plugin",
+  "description": "Description of my application",
   "icon": "🔧",
   "entry": "./app.tsx",
   "permissions": [
@@ -185,8 +204,8 @@ mkdir -p entities features widgets pages stores composables shared
   "configSchema": "./config/schema.json",
   "windows": [
     {
-      "id": "my-plugin-main",
-      "title": "My Plugin",
+      "id": "my-app-main",
+      "title": "My App",
       "defaultWidth": 800,
       "defaultHeight": 600,
       "minWidth": 600,
@@ -196,36 +215,36 @@ mkdir -p entities features widgets pages stores composables shared
 }
 ```
 
-3. **Plugin Bootstrap** (`init.ts`):
+3. **Application Bootstrap** (`init.ts`):
 ```ts
 import { eventBus } from '../../core/event-bus';
 
 export async function init() {
-  // Register event listeners with plugin scope
-  const scope = '@dineapp/my-plugin';
+  // Register event listeners with application scope
+  const scope = '@webos/my-app';
 
   // Listen to domain events
-  eventBus.on('order:created', handleOrderCreated, { scope });
+  eventBus.on('file:opened', handleFileOpened, { scope });
   eventBus.on('my-feature:updated', handleFeatureUpdate, { scope });
 
-  // Emit plugin loaded event
-  eventBus.emit('plugin:loaded', {
-    pluginId: '@dineapp/my-plugin',
+  // Emit application loaded event
+  eventBus.emit('app:loaded', {
+    appId: '@webos/my-app',
     timestamp: Date.now()
   });
 
   return () => {
     // Cleanup function
     eventBus.offAll(scope);
-    eventBus.emit('plugin:unloaded', {
-      pluginId: '@dineapp/my-plugin',
+    eventBus.emit('app:unloaded', {
+      appId: '@webos/my-app',
       timestamp: Date.now()
     });
   };
 }
 
-function handleOrderCreated(order: any) {
-  // Handle business logic
+function handleFileOpened(file: any) {
+  // Handle file operations
 }
 
 function handleFeatureUpdate(data: any) {
@@ -235,83 +254,108 @@ function handleFeatureUpdate(data: any) {
 
 4. **FSD Layers Implementation**:
 
-   **Entities** (`entities/order.ts`):
+   **Entities** (`entities/file.ts`):
 ```ts
-export interface Order {
+export interface File {
   id: string;
-  items: OrderItem[];
-  total: number;
-  status: 'pending' | 'processing' | 'completed';
+  name: string;
+  path: string;
+  size: number;
+  type: string;
+  content: string | ArrayBuffer;
+  modifiedAt: Date;
   createdAt: Date;
 }
 
-export interface OrderItem {
-  productId: string;
-  quantity: number;
-  price: number;
-  modifiers: string[];
+export interface Folder {
+  id: string;
+  name: string;
+  path: string;
+  parentId: string | null;
+  children: (File | Folder)[];
+  createdAt: Date;
 }
 ```
 
-   **Features** (`features/useOrderManagement.ts`):
+   **Features** (`features/useFileManagement.ts`):
 ```ts
 import { createSignal, createEffect } from 'solid-js';
-import { Order } from '../entities/order';
+import { File, Folder } from '../entities/file';
 
-export function useOrderManagement() {
-  const [orders, setOrders] = createSignal<Order[]>([]);
+export function useFileManagement() {
+  const [files, setFiles] = createSignal<File[]>([]);
+  const [folders, setFolders] = createSignal<Folder[]>([]);
   const [loading, setLoading] = createSignal(false);
 
-  const createOrder = (orderData: Partial<Order>) => {
+  const createFile = (fileData: Partial<File>) => {
     setLoading(true);
-    const order: Order = {
+    const file: File = {
       id: generateId(),
-      items: [],
-      total: 0,
-      status: 'pending',
+      name: '',
+      path: '',
+      size: 0,
+      type: '',
+      content: '',
+      modifiedAt: new Date(),
       createdAt: new Date(),
-      ...orderData
-    } as Order;
+      ...fileData
+    } as File;
 
-    setOrders(prev => [...prev, order]);
+    setFiles(prev => [...prev, file]);
     setLoading(false);
 
     // Emit domain event
-    eventBus.emit('order:created', order);
+    eventBus.emit('file:created', file);
 
-    return order;
+    return file;
   };
 
-  return { orders, loading, createOrder };
+  const openFile = (fileId: string) => {
+    const file = files().find(f => f.id === fileId);
+    if (file) {
+      eventBus.emit('file:opened', file);
+    }
+    return file;
+  };
+
+  return { files, folders, loading, createFile, openFile };
 }
 ```
 
-   **Widgets** (`widgets/OrderList.tsx`):
+   **Widgets** (`widgets/FileList.tsx`):
 ```tsx
 import { For } from 'solid-js';
-import { useOrderManagement } from '../features/useOrderManagement';
+import { useFileManagement } from '../features/useFileManagement';
 
-export function OrderList() {
-  const { orders, loading } = useOrderManagement();
+export function FileList() {
+  const { files, loading } = useFileManagement();
 
   return (
-    <div class="order-list">
-      <h2>Orders</h2>
+    <div class="file-list">
+      <h2>Files</h2>
       {loading() ? (
         <p>Loading...</p>
       ) : (
-        <For each={orders()}>
-          {(order) => (
-            <div class="order-item">
-              <span>Order {order.id}</span>
-              <span>{order.status}</span>
-              <span>${order.total.toFixed(2)}</span>
+        <For each={files()}>
+          {(file) => (
+            <div class="file-item">
+              <span>{file.name}</span>
+              <span>{file.type}</span>
+              <span>{formatFileSize(file.size)}</span>
             </div>
           )}
         </For>
       )}
     </div>
   );
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 ```
 
@@ -320,9 +364,9 @@ export function OrderList() {
 import { onMount, onCleanup } from 'solid-js';
 import { eventBus } from '../../core/event-bus';
 import { useEventBus } from '../../composables/useEventBus';
-import { OrderList } from './widgets/OrderList';
+import { FileList } from './widgets/FileList';
 
-export default function MyPlugin() {
+export default function MyApp() {
   const events = useEventBus();
 
   onMount(() => {
@@ -336,42 +380,43 @@ export default function MyPlugin() {
 
   return (
     <div class="p-6 bg-white dark:bg-gray-800 min-h-full">
-      <h1 class="text-2xl font-bold mb-6">My Plugin</h1>
-      <OrderList />
+      <h1 class="text-2xl font-bold mb-6">My App</h1>
+      <FileList />
     </div>
   );
 }
 ```
 
-6. **Plugin Registration** (in `src/plugins/index.ts`):
+6. **Application Registration** (in `src/apps/index.ts`):
 ```ts
-export { default as myPlugin } from './my-plugin/app';
-export { init } from './my-plugin/init';
+export { default as myApp } from './my-app/app';
+export { init } from './my-app/init';
 ```
 
 ### Event System
 
-DineApp OS uses a **deterministic, leak-free EventBus** for all inter-plugin communication. The EventBus is scoped by design, ensuring clean isolation between plugins.
+WebOS uses a **deterministic, leak-free EventBus** for all inter-application communication. The EventBus is scoped by design, ensuring clean isolation between applications.
 
 #### Core Event Bus (System-Level)
-Used by core modules, plugin bootstraps, and data stores:
+Used by core modules, application bootstraps, and data stores:
 
 ```typescript
 import { eventBus } from '../core/event-bus';
 
 // Emit events with async side effects
-await eventBus.emit('order:created', {
-  id: 123,
-  items: [...],
+await eventBus.emit('file:created', {
+  id: 'file123',
+  name: 'document.txt',
+  size: 1024,
   timestamp: Date.now()
 });
 
-// Register listeners with plugin scope (required for cleanup)
-const scope = '@dineapp/my-plugin';
-eventBus.on('order:created', handleOrderCreated, { scope });
-eventBus.on('inventory:low', handleLowStock, { scope });
+// Register listeners with application scope (required for cleanup)
+const scope = '@webos/my-app';
+eventBus.on('file:opened', handleFileOpened, { scope });
+eventBus.on('app:updated', handleAppUpdate, { scope });
 
-// Cleanup on plugin unload
+// Cleanup on application unload
 eventBus.offAll(scope);
 ```
 
@@ -412,11 +457,15 @@ Follow descriptive, namespaced naming using **domain:action** convention:
 // Window Events
 'window:opened' | 'window:closed' | 'window:minimized' | 'window:focused'
 
-// Order Events
-'order:created' | 'order:updated' | 'order:cancelled' | 'order:paid'
+// File System Events
+'file:created' | 'file:opened' | 'file:modified' | 'file:deleted'
+'folder:created' | 'folder:navigated' | 'folder:renamed'
+
+// Application Events
+'app:loaded' | 'app:unloaded' | 'app:focused' | 'os:ready'
 
 // System Events
-'plugin:loaded' | 'plugin:unloaded' | 'os:ready' | 'theme:changed'
+'os:ready' | 'theme:changed' | 'notification:shown'
 
 // User Events
 'user:logged-in' | 'user:logged-out' | 'permissions:changed'
@@ -428,9 +477,9 @@ For collecting multiple event payloads:
 ```tsx
 import { createEventAccumulator } from '../composables/useEventBus';
 
-export function ActivityLog() {
+export function SystemLog() {
   // Accumulates events into an array
-  const activities = createEventAccumulator('user:action', []);
+  const activities = createEventAccumulator('system:action', []);
 
   return (
     <For each={activities()}>
@@ -448,7 +497,7 @@ export function ActivityLog() {
 
 ## 🎨 Theming
 
-DineApp supports customizable themes:
+WebOS supports customizable themes:
 
 ```typescript
 // Create a custom theme
@@ -476,11 +525,13 @@ Built-in i18n support:
 const translations = {
   en: {
     'welcome': 'Welcome',
-    'order.created': 'Order {{id}} created successfully'
+    'file.opened': 'File {{name}} opened successfully',
+    'app.loaded': 'Application {{name}} loaded'
   },
   es: {
     'welcome': 'Bienvenido',
-    'order.created': 'Pedido {{id}} creado exitosamente'
+    'file.opened': 'Archivo {{name}} abierto exitosamente',
+    'app.loaded': 'Aplicación {{name}} cargada'
   }
 };
 ```
@@ -490,12 +541,13 @@ const translations = {
 Dynamic configuration system allows runtime configuration changes:
 
 ```typescript
-// Plugin configuration schema
+// Application configuration schema
 const configSchema = {
   type: 'object',
   properties: {
-    currency: { type: 'string', default: 'USD' },
-    taxRate: { type: 'number', default: 0.1 }
+    theme: { type: 'string', default: 'auto' },
+    autoSave: { type: 'boolean', default: true },
+    defaultPath: { type: 'string', default: '/home' }
   }
 };
 ```
@@ -503,9 +555,10 @@ const configSchema = {
 ## 📊 Development
 
 ### Project Structure
-- **Core**: Essential systems that power the application
+- **Core**: Essential systems that power the operating system
 - **Ports**: External integration points
-- **Plugins**: Feature-specific modules
+- **Apps**: System applications
+- **Plugins**: Third-party applications
 - **Composables**: Reusable logic hooks
 
 ### Technology Stack
@@ -514,6 +567,7 @@ const configSchema = {
 - **Styling**: Tailwind CSS v4
 - **Package Manager**: Bun
 - **Architecture**: Microkernel + Feature-Sliced Design (FSD)
+- **State Management**: Finite State Machine (FSM) System
 
 ### Development Commands
 
@@ -539,7 +593,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Make your changes
-4. Run tests: `pnpm test`
+4. Run tests: `bun test`
 5. Commit your changes: `git commit -m 'Add amazing feature'`
 6. Push to the branch: `git push origin feature/amazing-feature`
 7. Open a Pull Request
@@ -556,16 +610,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 📧 Email: support@dineapp.com
-- 💬 Discord: [Join our community](https://discord.gg/dineapp)
-- 📖 Documentation: [docs.dineapp.com](https://docs.dineapp.com)
+- 📧 Email: support@webos.com
+- 💬 Discord: [Join our community](https://discord.gg/webos)
+- 📖 Documentation: [docs.webos.com](https://docs.webos.com)
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for the restaurant industry**
+**Built with ❤️ for the web platform**
 
-[⭐ Star this repo](https://github.com/devmaaa/os.dineapp) | [🐛 Report Issues](https://github.com/devmaaa/os.dineapp/issues) | [💡 Request Features](https://github.com/devmaaa/os.dineapp/discussions)
+[⭐ Star this repo](https://github.com/devmaaa/webos) | [🐛 Report Issues](https://github.com/devmaaa/webos/issues) | [💡 Request Features](https://github.com/devmaaa/webos/discussions)
 
 </div>

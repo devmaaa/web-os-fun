@@ -1,24 +1,24 @@
-Perfect — you’re asking for what’s essentially the canonical architecture specification for your entire system —
-a foundational LLM Context Spec File that defines how DineApp OS is structured, how plugins are architected, and how every part of the ecosystem interacts.
+Perfect — you're asking for what's essentially the canonical architecture specification for your entire system —
+a foundational LLM Context Spec File that defines how WebOS is structured, how applications are architected, and how every part of the ecosystem interacts.
 
 Below is your production-grade spec file written in clear, declarative format — it can be used both for onboarding engineers and as a reference for AI-assisted development (LLM-driven design).
 
-🏗️ DineApp OS — System Architecture Specification
+🏗️ WebOS — System Architecture Specification
 
 Version: 1.0
 Document Type: Architecture Specification (LLM Context)
-System: DineApp OS
+System: WebOS
 Primary Stack: Solid.js + Vite + TypeScript
-Core Paradigm: Microkernel Architecture (Core + Plugins + Schema-driven Config + Event Bus)
+Core Paradigm: Microkernel Architecture (Core + Apps + Schema-driven Config + Event Bus + FSM)
 Status: Stable Draft
-Audience: LLMs, Core Engineers, Plugin Developers, QA
+Audience: LLMs, Core Engineers, Application Developers, QA
 
 🧭 1. High-Level Philosophy
 
-DineApp OS is designed as a modular, OS-like web platform for restaurant and retail management.
+WebOS is designed as a complete, modular, OS-like web platform for general-purpose computing.
 The architecture emphasizes:
 
-Microkernel extensibility (Core + Plugins)
+Microkernel extensibility (Core + Apps)
 
 Isolation by design
 
@@ -26,20 +26,22 @@ Schema-driven configuration
 
 Event-driven communication
 
+Finite State Machine coordination
+
 Offline-first, real-time sync
 
-The goal is to allow any plugin (e.g., POS, KDS, Inventory) to be built, loaded, or replaced independently —
+The goal is to allow any application (e.g., File Manager, Text Editor, Browser) to be built, loaded, or replaced independently —
 while sharing a consistent UI, communication, and data contract layer.
 
 🧩 2. Macro Architecture Overview
 ┌────────────────────────────────────────────┐
-│              DineApp OS Core               │
+│                WebOS Core                 │
 │────────────────────────────────────────────│
 │ 🧠 Microkernel                             │
-│  • Plugin Loader                           │
+│  • Application Loader                      │
 │  • Event Bus (Scoped + Leak-safe)          │
 │  • Window Manager                          │
-│  • Finite State Machine (FSM) System      │
+│  • Finite State Machine (FSM) System       │
 │  • State Manager                           │
 │  • Config Engine                           │
 │  • Theme Engine                            │
@@ -55,51 +57,53 @@ while sharing a consistent UI, communication, and data contract layer.
 ▲
 │
 ┌──────────────┴──────────────┐
-│          Plugins            │
+│          Applications       │
 │─────────────────────────────│
-│ POS / KDS / CRM / Analytics │
-│ Inventory / Tables / Menu   │
+│ File Manager / Text Editor  │
+│ Media Player / Browser      │
+│ Terminal / Settings        │
+│ System Apps / User Apps    │
 └──────────────▲──────────────┘
 │
 Solid.js Windows (UI)
 
 🧱 3. Core Subsystems
 Subsystem	Description
-Microkernel	Minimal runtime responsible for loading, starting, and stopping plugins.
-Event Bus	Global message backbone connecting all modules. Leak-free, scoped per plugin.
+Microkernel	Minimal runtime responsible for loading, starting, and stopping applications.
+Event Bus	Global message backbone connecting all modules. Leak-free, scoped per application.
 Window Manager	Handles window-based multitasking (open, minimize, maximize, close).
-Finite State Machine (FSM) System	Deterministic state coordination for all subsystems (windows, plugins, storage, auth).
-State Manager	Lightweight layer for shared state between plugins (optional).
+Finite State Machine (FSM) System	Deterministic state coordination for all subsystems (windows, applications, storage, auth).
+State Manager	Lightweight layer for shared state between applications (optional).
 Config Engine	Loads schema-driven configurations defining entities, workflows, permissions.
-Theme Engine	Provides global theming, dark/light modes, and per-plugin overrides.
+Theme Engine	Provides global theming, dark/light modes, and per-application overrides.
 Storage Engine	Abstracted persistence layer with offline cache and real-time sync.
-🔌 4. Plugin Architecture (FSD-Driven Micro-App Model)
+🔌 4. Application Architecture (FSD-Driven Micro-App Model)
 
-Each plugin is a self-contained micro-application following Feature-Sliced Design (FSD) principles.
+Each application is a self-contained micro-application following Feature-Sliced Design (FSD) principles.
 
 4.1 Directory Structure
-plugins/
-├── pos/
-│    ├── app.tsx              # Plugin UI entrypoint
-│    ├── manifest.json        # Plugin manifest (id, name, permissions)
-│    ├── init.ts              # Plugin bootstrap/init logic
-│    ├── entities/            # Core business entities (Order, Payment, Table)
-│    ├── features/            # Isolated feature logic (SplitBill, AddTips)
+apps/
+├── file-manager/
+│    ├── app.tsx              # App UI entrypoint
+│    ├── manifest.json        # App manifest (id, name, permissions)
+│    ├── init.ts              # App bootstrap/init logic
+│    ├── entities/            # Core business entities (File, Folder, FileSystem)
+│    ├── features/            # Isolated feature logic (FileOperations, Navigation)
 │    ├── pages/               # Composed UI screens
 │    ├── widgets/             # UI components used across features
-│    ├── stores/              # Solid stores (local plugin state)
-│    ├── composables/         # Plugin-specific composables (hooks)
+│    ├── stores/              # Solid stores (local app state)
+│    ├── composables/         # App-specific composables (hooks)
 │    ├── shared/              # Constants, utils, common assets
-│    └── index.ts             # Plugin registration/export
+│    └── index.ts             # App registration/export
 
 4.2 Internal FSD Rules
 Layer	Responsibility	Example
-entities/	Domain logic, pure business rules	entities/order.ts
-features/	Small reusable units of behavior	features/useSplitBill.ts
-widgets/	UI elements combining multiple features	widgets/OrderList.tsx
-pages/	High-level UI composition	pages/PosTerminal.tsx
-stores/	State + event subscriptions	stores/orderStore.ts
-shared/	Utilities, constants, types	shared/formatPrice.ts
+entities/	Domain logic, pure business rules	entities/file.ts
+features/	Small reusable units of behavior	features/useFileOperations.ts
+widgets/	UI elements combining multiple features	widgets/FileList.tsx
+pages/	High-level UI composition	pages/FileManager.tsx
+stores/	State + event subscriptions	stores/fileStore.ts
+shared/	Utilities, constants, types	shared/formatFileSize.ts
 
 Rule:
 
@@ -107,15 +111,15 @@ UI imports only from widgets/, features/, or entities/.
 Features may depend on entities, but not vice versa.
 Shared code is importable by all layers.
 
-🧠 5. Plugin Lifecycle
+🧠 5. Application Lifecycle
 Phase	Description	Trigger
-Load	Microkernel discovers and imports plugin manifest	System boot or on-demand
-Init	Calls plugin.init() to register events and windows	After dependencies resolve
+Load	Microkernel discovers and imports app manifest	System boot or on-demand
+Init	Calls app.init() to register events and windows	After dependencies resolve
 Start	UI window(s) instantiated by Window Manager	User interaction
-Stop	Listeners and windows destroyed	Plugin unload or user disable
+Stop	Listeners and windows destroyed	App unload or user disable
 Unload	Memory cleared, scope removed	Manual unload or crash recovery
 
-Each plugin must implement:
+Each application must implement:
 
 manifest.json (metadata, version, permissions)
 
@@ -136,24 +140,24 @@ createEventSignal()	Reactive signal tied to event
 createEventAccumulator()	Reactive array for event streams
 Event Rules
 
-Always register listeners with a scope (e.g. @dineapp/pos).
+Always register listeners with a scope (e.g. @webos/file-manager).
 
 Always clean up with eventBus.offAll(scope) on unload.
 
 Use useEventBus() in UI components only.
 
-Use eventBus directly in stores or plugin init.
+Use eventBus directly in stores or app init.
 
-Event names follow domain:action convention (order:created, window:focused).
+Event names follow domain:action convention (file:created, window:focused).
 
-No direct plugin-to-plugin imports — only communicate through events.
+No direct application-to-application imports — only communicate through events.
 
-🧩 7. Core vs Plugin Boundaries
+🧩 7. Core vs Application Boundaries
 Direction	Allowed	Mechanism
-Plugin → Core	✅	Via SDK imports (import { eventBus, windowManager } from '@core')
-Plugin → Shared	✅	Via @shared/* modules
-Plugin → Plugin	❌	Use EventBus
-Core → Plugin	❌	Plugins self-register via manifest
+App → Core	✅	Via SDK imports (import { eventBus, windowManager } from '@core')
+App → Shared	✅	Via @shared/* modules
+App → App	❌	Use EventBus
+Core → App	❌	Applications self-register via manifest
 🧠 8. Configuration Engine
 
 All domain-specific data is schema-driven, enabling no-code customization.
@@ -168,7 +172,7 @@ UI behavior (forms, lists, dashboards).
 
 Workflow states and transitions.
 
-This enables the same core engine to support restaurants, retail, or hotels with different schemas.
+This enables the same core engine to support different use cases with different schemas.
 
 🎨 9. UI & Window System
 
@@ -203,24 +207,26 @@ dineapp/
 │   ├── sdk/                  # Plugin SDK for developers
 │   ├── storage/              # IndexedDB + sync adapters
 │   └── types/                # Global TypeScript types
-├── plugins/                  # Official and third-party plugins
-│   ├── pos/
-│   ├── kds/
-│   ├── crm/
-│   ├── analytics/
-│   └── inventory/
+├── apps/                     # System applications
+│   ├── file-manager/
+│   ├── text-editor/
+│   ├── media-player/
+│   ├── browser/
+│   └── settings/
+├── plugins/                  # Third-party applications
+│   └── [user-apps]/
 └── infra/
 ├── backend/              # REST / WebSocket backend services
 └── deploy/               # Build & deployment configs
 
-🧩 11. Plugin Development Guidelines
+🧩 11. Application Development Guidelines
 ✅ DOs
 
 Follow FSD internal boundaries (entities → features → widgets → pages).
 
-Register all event listeners with plugin scope (@dineapp/{plugin}).
+Register all event listeners with application scope (@webos/{app}).
 
-Emit events for all domain actions (e.g. order:created, inventory:low).
+Emit events for all domain actions (e.g. file:created, window:opened).
 
 Keep business logic inside entities/features, not UI.
 
@@ -228,17 +234,17 @@ Use composables for integration with Solid lifecycle.
 
 Clean up with eventBus.offAll(scope) in onUnload().
 
-Declare plugin capabilities in manifest.json.
+Declare application capabilities in manifest.json.
 
 Use shared packages (@ui, @sdk, @types) for consistency.
 
-Use FSM for plugin lifecycle management (import { createPlugin } from '@core/fsm').
+Use FSM for application lifecycle management (import { createApp } from '@core/fsm').
 
-Listen to FSM events for debugging (fsm:transition, fsm:error) with plugin scope.
+Listen to FSM events for debugging (fsm:transition, fsm:error) with application scope.
 
 ❌ DON’Ts
 
-Don’t import other plugin code directly.
+Don't import other application code directly.
 
 Don’t mutate global shared state directly — communicate via events.
 

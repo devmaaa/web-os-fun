@@ -1,47 +1,47 @@
-📘 plugin-system-spec.md
+📘 application-system-spec.md
 
-Subsystem: Plugin Lifecycle & Manifest Architecture
+Subsystem: Application Lifecycle & Manifest Architecture
 Context: Microkernel Runtime
 
 1. Purpose
 
-Defines the plugin system contract between DineApp Core and all feature modules.
-Each plugin is a self-contained micro-application that integrates through a manifest and the Event Bus.
+Defines the application system contract between WebOS Core and all application modules.
+Each application is a self-contained micro-application that integrates through a manifest and the Event Bus.
 
-2. Plugin Goals
+2. Application Goals
 
-Independence: Plugins build, deploy, and test in isolation.
+Independence: Applications build, deploy, and test in isolation.
 
 Discoverability: Core auto-detects via manifest registry.
 
-Extensibility: New industries (restaurant, retail, hotel) can be added as plugins.
+Extensibility: New applications (system tools, user apps, utilities) can be added as applications.
 
-Lifecycle Safety: Plugins clean up all listeners and windows on unload.
+Lifecycle Safety: Applications clean up all listeners and windows on unload.
 
 3. Lifecycle Phases
    Phase	Description	Responsible
    discover	Kernel finds manifest	Microkernel
-   load	Import plugin bundle	PluginLoader
-   init	Execute init() to register events/stores	Plugin
+   load	Import application bundle	ApplicationLoader
+   init	Execute init() to register events/stores	Application
    start	Render main UI window(s)	WindowManager
-   stop	Destroy windows / remove listeners	Plugin
+   stop	Destroy windows / remove listeners	Application
    unload	Clear scope / free memory	Microkernel
 4. Manifest Specification
 
 File: manifest.json
 
 Field	Type	Description
-id	string	Unique plugin ID, e.g. @dineapp/pos
+id	string	Unique application ID, e.g. @webos/file-manager
 displayName	string	Human-readable name
 version	string	Semantic version
-entry	string	Path to plugin entry bundle
+entry	string	Path to application entry bundle
 windows	array	Registered window definitions
 permissions	array	Capabilities requested
-dependencies	array	Optional list of required plugins
+dependencies	array	Optional list of required applications
 configSchema	string	Optional path to schema file
 icon	string	Optional icon asset
 5. Directory Structure
-   plugins/{plugin-name}/
+   apps/{app-name}/
    ├── manifest.json
    ├── init.ts
    ├── app.tsx
@@ -54,7 +54,7 @@ icon	string	Optional icon asset
    └── shared/
 
 
-Each plugin adheres to FSD-like internal layering:
+Each application adheres to FSD-like internal layering:
 entities → features → widgets → pages → app.
 
 6. Integration Contract
@@ -64,9 +64,9 @@ entities → features → widgets → pages → app.
    Storage	Core storage adapter (IndexedDB, sync)
    Auth & Permissions	Core SDK (auth.checkPermission)
    Configuration	Schema-driven JSON/YAML definitions
-7. Plugin Developer Responsibilities
+7. Application Developer Responsibilities
 
-Declare plugin scope (e.g. @dineapp/pos).
+Declare application scope (e.g. @webos/file-manager).
 
 Register all event handlers with that scope.
 
@@ -78,59 +78,59 @@ Provide at least one UI entrypoint (app.tsx).
 
 Follow event naming conventions.
 
-Avoid cross-plugin imports.
+Avoid cross-application imports.
 
 Use shared packages for utilities/UI.
 
 8. Lifecycle Hooks
    Hook	Description
-   onLoad()	Called when plugin bundle is imported.
+   onLoad()	Called when application bundle is imported.
    onInit()	Register handlers, stores, services.
    onStart()	Called when first window opens.
    onUnload()	Remove all listeners, cleanup memory.
 
 Hooks are optional but strongly recommended.
 
-9. Plugin DOs and DON’Ts
+9. Application DOs and DON'Ts
    ✅ DO
 
-Use scoped naming: @dineapp/{plugin}.
+Use scoped naming: @webos/{app}.
 
 Keep domain logic inside entities/features.
 
 Expose a clean public interface via manifest.
 
-Emit plugin:loaded and plugin:unloaded events.
+Emit app:loaded and app:unloaded events.
 
-❌ DON’T
+❌ DON'T
 
-Don’t modify global state directly.
+Don't modify global state directly.
 
-Don’t import other plugin internals.
+Don't import other application internals.
 
-Don’t create listeners without scope.
+Don't create listeners without scope.
 
-Don’t rely on implicit cleanup.
+Don't rely on implicit cleanup.
 
 10. Dependency & Compatibility Rules
 
-Each plugin declares its version and dependencies.
+Each application declares its version and dependencies.
 
 Core validates semantic version compatibility on load.
 
-Optional: Marketplace validation for third-party plugins.
+Optional: Marketplace validation for third-party applications.
 
 11. Performance & Safety
     Metric	Target
-    Plugin load time	< 300 ms
-    Plugin unload cleanup	100 % listener removal
-    Max memory per plugin	≤ 10 MB
+    Application load time	< 300 ms
+    Application unload cleanup	100 % listener removal
+    Max memory per application	≤ 10 MB
     Concurrent windows	≥ 20
 12. Testing Strategy
 
 Unit: Manifest validation, lifecycle hook calls.
 
-Integration: Multi-plugin startup/unload scenario.
+Integration: Multi-application startup/unload scenario.
 
 Security: Permission sandboxing.
 
