@@ -1,0 +1,24 @@
+{
+  "id": "@dineapp/settings",
+  "displayName": "Settings",
+  "version": "1.0.0",
+  "description": "System configuration, user management, and restaurant settings",
+  "icon": "⚙️",
+  "entry": "./index.tsx",
+  "permissions": [
+    "admin.system",
+    "settings.read",
+    "settings.update"
+  ],
+  "dependencies": [],
+  "configSchema": "./config/schema.json",
+   "windows": [
+     {
+       "id": "settings-main",
+       "title": "Settings",
+       "defaultHeight": 550,
+"defaultWidth": 650,
+       "minHeight": 400
+     }
+   ]
+}

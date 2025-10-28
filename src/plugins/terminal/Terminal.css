@@ -1,0 +1,86 @@
+.terminal {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+
+.terminal-content {
+  caret-color: #10b981;
+}
+
+.terminal-line {
+  margin: 2px 0;
+  line-height: 1.4;
+}
+
+.terminal-input {
+  color: #10b981;
+}
+
+.terminal-output {
+  color: #e5e7eb;
+}
+
+.terminal-error {
+  color: #ef4444;
+}
+
+.terminal-success {
+  color: #10b981;
+}
+
+.terminal-input-line {
+  align-items: center;
+}
+
+.terminal-prompt {
+  color: #10b981;
+  user-select: none;
+}
+
+.terminal-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #10b981;
+  caret-color: #10b981;
+}
+
+/* Cursor animation */
+.terminal-input::after {
+  content: '█';
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Custom scrollbar */
+.terminal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal-content::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.terminal-content::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+.terminal-content::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Focus outline */
+.terminal-content:focus-within {
+  outline: none;
+}
+
+/* Text selection */
+.terminal ::selection {
+  background: #374151;
+  color: #e5e7eb;
+}

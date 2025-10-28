@@ -1,0 +1,73 @@
+{
+  "compilerOptions": {
+    // General
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "target": "ESNext",
+
+    // Modules
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+
+    // Type Checking & Safety
+    "strict": true,
+    "types": ["vite/client"],
+
+    // Path Mapping - Microkernel Architecture
+    "baseUrl": ".",
+    "paths": {
+      // Core System - Microkernel and Core Services
+      "@core/*": ["src/core/*"],
+      "@core/event-bus": ["src/core/event-bus"],
+      "@core/window-manager": ["src/core/window-manager"],
+      "@core/plugin-loader": ["src/core/plugin-loader"],
+      "@core/config-engine": ["src/core/config-engine"],
+      "@core/auth": ["src/core/auth-permissions"],
+      "@core/themes": ["src/core/themes"],
+      "@core/storage": ["src/core/storage-abstraction"],
+      "@core/telemetry": ["src/core/telemetry"],
+      "@core/cache": ["src/core/local-cache"],
+      "@core/i18n": ["src/core/i18n"],
+
+      // Apps - Desktop Environment and Root Applications
+      "@apps/*": ["src/apps/*"],
+      "@apps/os-shell": ["src/apps/os-shell"],
+
+      // Plugins - Feature-Sliced Design Micro-apps
+      "@plugins/*": ["src/plugins/*"],
+      "@plugins/pos": ["src/plugins/pos"],
+      "@plugins/kds": ["src/plugins/kds"],
+      "@plugins/crm": ["src/plugins/crm"],
+      "@plugins/analytics": ["src/plugins/analytics"],
+      "@plugins/inventory": ["src/plugins/inventory"],
+      "@plugins/menu": ["src/plugins/menu"],
+      "@plugins/settings": ["src/plugins/settings"],
+
+      // Ports - External System Integrations
+      "@ports/*": ["src/ports/*"],
+      "@ports/payments": ["src/ports/payments"],
+      "@ports/notifications": ["src/ports/notif"],
+      "@ports/database": ["src/ports/db"],
+      "@ports/printers": ["src/ports/printers"],
+
+      // Shared - Cross-cutting Utilities
+      "@shared/*": ["src/*"],
+      "@composables": ["src/composables"],
+      "@utils": ["src/utils"],
+      "@types": ["src/types"],
+      "@assets": ["src/assets"],
+
+      // UI - Shared Component Library
+      "@ui/*": ["src/ui/*"],
+      "@ui/components": ["src/ui/components"],
+      "@ui/hooks": ["src/ui/hooks"],
+      "@ui/styles": ["src/ui/styles"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "@dineapp/calculator",
+  "displayName": "Calculator",
+  "version": "1.0.0",
+  "description": "Basic and scientific calculator",
+  "icon": "🧮",
+  "entry": "./index.tsx",
+  "permissions": [],
+  "dependencies": [],
+   "windows": [
+     {
+       "id": "calculator-main",
+       "title": "Calculator",
+       "defaultWidth": 320,
+       "defaultHeight": 500,
+       "minWidth": 250,
+       "minHeight": 400
+     }
+   ]
+}
