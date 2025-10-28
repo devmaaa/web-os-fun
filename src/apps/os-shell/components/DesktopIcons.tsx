@@ -21,7 +21,7 @@ const DesktopIcons: Component<DesktopIconsProps> = (props) => {
         <For each={availablePlugins()}>
           {(plugin) => (
             <button
-              class="flex flex-col items-center justify-center p-4 rounded-lg hover:bg-opacity-20 hover:bg-gray-500 transition-colors cursor-pointer"
+              class="flex flex-col items-center justify-center p-4 rounded-lg hover:bg-bg-secondary hover:bg-opacity-20 transition-colors cursor-pointer"
               style={{
                 'background-color': 'transparent',
                 color: 'var(--text-primary)'
@@ -32,9 +32,9 @@ const DesktopIcons: Component<DesktopIconsProps> = (props) => {
               <div class="text-4xl mb-2">
                 {plugin.icon}
               </div>
-              <div class="text-xs text-center max-w-full break-words">
-                {plugin.displayName}
-              </div>
+               <div class="text-xs text-text-primary text-center max-w-full break-words">
+                 {plugin.displayName}
+               </div>
             </button>
           )}
         </For>

@@ -1,0 +1,24 @@
+{
+  "id": "@dineapp/file-manager",
+  "displayName": "File Manager",
+  "version": "1.0.0",
+  "description": "File system browser and manager",
+  "icon": "📁",
+  "entry": "./index.tsx",
+  "permissions": [
+    "fs.read",
+    "fs.write",
+    "fs.execute"
+  ],
+  "dependencies": [],
+   "windows": [
+     {
+       "id": "file-manager-main",
+       "title": "File Manager",
+       "defaultWidth": 650,
+       "defaultHeight": 700,
+       "minWidth": 400,
+       "minHeight": 300
+     }
+   ]
+}

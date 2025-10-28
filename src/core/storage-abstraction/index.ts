@@ -63,9 +63,9 @@ class IndexedDBAdapter implements StorageAdapter {
       const transaction = db.transaction(['storage'], 'readonly');
       const store = transaction.objectStore('storage');
       const request = store.get(key);
-      
+
       request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result?.value);
+      request.onsuccess = () => resolve(request.result);
     });
   }
 
@@ -74,8 +74,8 @@ class IndexedDBAdapter implements StorageAdapter {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(['storage'], 'readwrite');
       const store = transaction.objectStore('storage');
-      const request = store.put({ key, value });
-      
+      const request = store.put(value, key);
+
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve();
     });

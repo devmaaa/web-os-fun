@@ -1,0 +1,34 @@
+.file-manager {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+}
+
+/* Custom scrollbar */
+.file-manager ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.file-manager ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.file-manager ::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.file-manager ::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.dark .file-manager ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark .file-manager ::-webkit-scrollbar-thumb {
+  background: #4a5568;
+}
+
+.dark .file-manager ::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}

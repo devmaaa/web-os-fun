@@ -12,14 +12,13 @@
   ],
   "dependencies": [],
   "configSchema": "./config/schema.json",
-  "windows": [
-    {
-      "id": "settings-main",
-      "title": "Settings",
-      "defaultWidth": 750,
-      "defaultHeight": 550,
-      "minWidth": 600,
-      "minHeight": 400
-    }
-  ]
+   "windows": [
+     {
+       "id": "settings-main",
+       "title": "Settings",
+       "defaultHeight": 550,
+"defaultWidth": 650,
+       "minHeight": 400
+     }
+   ]
 }

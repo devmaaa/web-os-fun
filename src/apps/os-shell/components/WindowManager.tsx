@@ -148,12 +148,22 @@ const WindowManager: Component<WindowManagerProps> = () => {
 
   // Drag handling following spec requirements
   const handleMouseDown = (e: MouseEvent, windowId: string) => {
+    console.log(`🖱️ handleMouseDown called for window ${windowId}`, { clientX: e.clientX, clientY: e.clientY });
     e.preventDefault();
     const window = windowManager.windows.find(w => w.id === windowId);
-    if (!window) return;
+    if (!window) {
+      console.log(`❌ Window ${windowId} not found`);
+      return;
+    }
 
     const rect = (e.target as HTMLElement).closest('.window')?.getBoundingClientRect();
-    if (!rect) return;
+    if (!rect) {
+      console.log(`❌ Could not find window rect for ${windowId}`);
+      return;
+    }
+
+    console.log(`📐 Window rect:`, rect);
+    console.log(`📍 Window position: (${window.x}, ${window.y})`);
 
     setDragState({
       windowId,
@@ -162,8 +172,11 @@ const WindowManager: Component<WindowManagerProps> = () => {
       rafId: null
     });
 
+    console.log(`🔢 Drag offset: (${dragState().offsetX}, ${dragState().offsetY})`);
+
     windowManager.startDrag(windowId);
     windowManager.focusWindow(windowId);
+    console.log(`✅ Started dragging window ${windowId}`);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -176,6 +189,7 @@ const WindowManager: Component<WindowManagerProps> = () => {
     const rafId = requestAnimationFrame(() => {
       const newX = e.clientX - state.offsetX;
       const newY = e.clientY - state.offsetY;
+      console.log(`📍 Updating window position: ${state.windowId} -> (${newX}, ${newY})`);
       windowManager.updateWindowPosition(state.windowId!, newX, newY);
 
       setDragState(prev => ({ ...prev, rafId: null }));
@@ -186,6 +200,7 @@ const WindowManager: Component<WindowManagerProps> = () => {
 
   const handleMouseUp = () => {
     const state = dragState();
+    console.log(`🖱️ handleMouseUp called, ending drag for ${state.windowId}`);
     if (state.windowId) {
       windowManager.endDrag(state.windowId);
       if (state.rafId) {
@@ -226,18 +241,21 @@ const WindowManager: Component<WindowManagerProps> = () => {
               window.isResizing ? 'pointer-events-none' : ''
             }`}
             data-window-id={window.id}
-            style={{
-              left: `${window.x}px`,
-              top: `${window.y}px`,
-              width: `${window.width}px`,
-              height: `${window.height}px`,
-              'z-index': window.zIndex,
-              'background-color': 'var(--bg-primary)',
-              'border-color': 'var(--border-color)',
-              // GPU acceleration for dragging (spec requirement)
-              transform: window.isDragging ? `translate3d(0, 0, 0)` : 'none',
-              'will-change': window.isDragging ? 'transform' : 'auto'
-            }}
+             style={{
+               left: `${window.x}px`,
+               top: `${window.y}px`,
+               width: `${window.width}px`,
+               'min-width': `${window.width}px`,
+               height: `${window.height}px`,
+               'z-index': window.zIndex,
+               'background-color': 'var(--color-bg-primary)',
+               'border-color': 'var(--color-border-primary)',
+               '--window-width': `${window.width}px`,
+               '--window-height': `${window.height}px`,
+               // GPU acceleration for dragging (spec requirement)
+               transform: window.isDragging ? `translate3d(0, 0, 0)` : 'none',
+               'will-change': window.isDragging ? 'transform' : 'auto'
+             }}
             data-resizing={window.isResizing ? 'true' : 'false'}
           >
             {/* Title Bar */}
@@ -246,8 +264,8 @@ const WindowManager: Component<WindowManagerProps> = () => {
                 window.isResizing ? 'pointer-events-none' : ''
               }`}
               style={{
-                'background': 'linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary))',
-                'border-bottom': '1px solid var(--border-color)',
+                'background': 'linear-gradient(to bottom, var(--color-bg-primary), var(--color-bg-secondary))',
+                'border-bottom': '1px solid var(--color-border-primary)',
                 'border-radius': '8px 8px 0 0',
                 color: 'var(--text-primary)'
               }}
@@ -289,18 +307,9 @@ const WindowManager: Component<WindowManagerProps> = () => {
 
             {/* Content */}
             <div
-              class="window-content overflow-auto"
+              class="window-content overflow-auto bg-bg-secondary text-text-primary rounded-b-lg"
               style={{
-                'background-color': 'var(--bg-secondary)',
-                color: 'var(--text-primary)',
-                'border-radius': '0 0 8px 8px',
-                // Calculate proper height (total window height - title bar height)
                 height: `calc(${window.height}px - 40px)`, // 40px for title bar
-                // Calculate proper width (full window width)
-                width: `${window.width}px`,
-                // Ensure content fits properly
-                'box-sizing': 'border-box',
-                'overflow': 'auto'
               }}
             >
               {(() => {
@@ -321,8 +330,8 @@ const WindowManager: Component<WindowManagerProps> = () => {
 
                       {/* Interactive content to test resize behavior */}
                       <div class="mt-3 p-2 border rounded box-border" style={{
-                        'border-color': 'var(--border-color)',
-                        'background-color': 'var(--bg-primary)',
+                        'border-color': 'var(--color-border-primary)',
+                        'background-color': 'var(--color-bg-primary)',
                         'max-width': '100%'
                       }}>
                         <p class="text-xs mb-1">🧪 Resize Test Area</p>

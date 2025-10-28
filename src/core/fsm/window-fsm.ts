@@ -126,7 +126,7 @@ export function createWindowFSM(
     windowId,
     x: 0,
     y: 0,
-    width: 800,
+    width: 600,
     height: 600,
     resizable: true,
     maximizable: true,

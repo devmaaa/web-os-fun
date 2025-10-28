@@ -2,160 +2,98 @@ import { pluginLoader } from '@core/plugin-loader';
 import type { PluginManifest } from '@core/plugin-loader';
 
 // Import plugin UI components and init functions
-import POSUI from './pos/app';
-import { init as posInit } from './pos/init';
-import KDSUI from './kds/app';
-import { init as kdsInit } from './kds/init';
-import InventoryUI from './inventory/app';
-import { init as inventoryInit } from './inventory/init';
-import AnalyticsUI from './analytics/app';
-import { init as analyticsInit } from './analytics/init';
-import MenuUI from './menu/app';
-import { init as menuInit } from './menu/init';
+import FileManagerUI from './file-manager/app';
+import { init as fileManagerInit } from './file-manager/init';
+import TerminalUI from './terminal/app';
+import { init as terminalInit } from './terminal/init';
+import CalculatorUI from './calculator/app';
+import { init as calculatorInit } from './calculator/init';
 import SettingsUI from './settings/app';
 import { init as settingsInit } from './settings/init';
 
 // Map of plugin components
 export const pluginComponents: Record<string, any> = {
-  '@dineapp/pos': POSUI,
-  '@dineapp/kds': KDSUI,
-  '@dineapp/inventory': InventoryUI,
-  '@dineapp/analytics': AnalyticsUI,
-  '@dineapp/menu': MenuUI,
+  '@dineapp/file-manager': FileManagerUI,
+  '@dineapp/terminal': TerminalUI,
+  '@dineapp/calculator': CalculatorUI,
   '@dineapp/settings': SettingsUI,
 };
 
+
 // Define plugin manifests manually
-const posManifest: PluginManifest = {
-  id: "@dineapp/pos",
-  displayName: "POS Terminal",
+const fileManagerManifest: PluginManifest = {
+  id: "@dineapp/file-manager",
+  displayName: "File Manager",
   version: "1.0.0",
-  description: "Point of Sale interface for order taking and payment processing",
-  icon: "💰",
+  description: "File system browser and manager",
+  icon: "📁",
   entry: "./index.tsx",
   permissions: [
-    "order.read",
-    "order.create", 
-    "order.update",
-    "menu.read",
-    "table.read",
-    "table.update",
-    "payment.process"
+    "fs.read",
+    "fs.write",
+    "fs.execute"
   ],
   dependencies: [],
-  configSchema: "./config/schema.json",
-  windows: [
-    {
-      id: "pos-main",
-      title: "POS Terminal",
-      defaultWidth: 800,
-      defaultHeight: 600,
-      minWidth: 600,
-      minHeight: 400
-    }
-  ]
+   windows: [
+     {
+       id: "file-manager-main",
+       title: "File Manager",
+       defaultWidth: 650,
+       defaultHeight: 700,
+       minWidth: 400,
+       minHeight: 300
+     }
+   ]
 };
 
-const kdsManifest: PluginManifest = {
-  id: "@dineapp/kds",
-  displayName: "Kitchen Display System",
+
+const terminalManifest: PluginManifest = {
+  id: "@dineapp/terminal",
+  displayName: "Terminal",
   version: "1.0.0",
-  description: "Kitchen order management and display system",
-  icon: "👨‍🍳",
+  description: "Command line terminal emulator",
+  icon: "💻",
   entry: "./index.tsx",
   permissions: [
-    "order.read",
-    "order.update",
-    "kitchen.manage"
+    "fs.read",
+    "fs.write",
+    "fs.execute"
   ],
   dependencies: [],
-  windows: [
-    {
-      id: "kds-main",
-      title: "Kitchen Display",
-      defaultWidth: 1200,
-      defaultHeight: 800,
-      minWidth: 800,
-      minHeight: 600
-    }
-  ]
+   windows: [
+     {
+       id: "terminal-main",
+       title: "Terminal",
+       defaultWidth: 650,
+       defaultHeight: 500,
+       minWidth: 400,
+       minHeight: 300
+     }
+   ]
 };
 
-const inventoryManifest: PluginManifest = {
-  id: "@dineapp/inventory",
-  displayName: "Inventory Management",
+const calculatorManifest: PluginManifest = {
+  id: "@dineapp/calculator",
+  displayName: "Calculator",
   version: "1.0.0",
-  description: "Inventory tracking and management system",
-  icon: "📦",
+  description: "Basic and scientific calculator",
+  icon: "🧮",
   entry: "./index.tsx",
-  permissions: [
-    "inventory.read",
-    "inventory.create",
-    "inventory.update",
-    "inventory.delete"
-  ],
+  permissions: [],
   dependencies: [],
-  windows: [
-    {
-      id: "inventory-main",
-      title: "Inventory",
-      defaultWidth: 1000,
-      defaultHeight: 700,
-      minWidth: 600,
-      minHeight: 400
-    }
-  ]
+   windows: [
+     {
+       id: "calculator-main",
+       title: "Calculator",
+       defaultWidth: 650,
+       defaultHeight: 500,
+       minWidth: 300,
+       minHeight: 400
+     }
+   ]
 };
 
-const analyticsManifest: PluginManifest = {
-  id: "@dineapp/analytics",
-  displayName: "Analytics Dashboard",
-  version: "1.0.0",
-  description: "Business analytics and reporting dashboard",
-  icon: "📊",
-  entry: "./index.tsx",
-  permissions: [
-    "analytics.read",
-    "reports.generate"
-  ],
-  dependencies: [],
-  windows: [
-    {
-      id: "analytics-main",
-      title: "Analytics",
-      defaultWidth: 1200,
-      defaultHeight: 800,
-      minWidth: 800,
-      minHeight: 600
-    }
-  ]
-};
 
-const menuManifest: PluginManifest = {
-  id: "@dineapp/menu",
-  displayName: "Menu Management",
-  version: "1.0.0",
-  description: "Menu item management and configuration",
-  icon: "📋",
-  entry: "./index.tsx",
-  permissions: [
-    "menu.read",
-    "menu.create",
-    "menu.update",
-    "menu.delete"
-  ],
-  dependencies: [],
-  windows: [
-    {
-      id: "menu-main",
-      title: "Menu Management",
-      defaultWidth: 900,
-      defaultHeight: 700,
-      minWidth: 600,
-      minHeight: 400
-    }
-  ]
-};
 
 const settingsManifest: PluginManifest = {
   id: "@dineapp/settings",
@@ -169,25 +107,23 @@ const settingsManifest: PluginManifest = {
     "settings.update"
   ],
   dependencies: [],
-  windows: [
-    {
-      id: "settings-main",
-      title: "Settings",
-      defaultWidth: 800,
-      defaultHeight: 600,
-      minWidth: 500,
-      minHeight: 400
-    }
-  ]
+   windows: [
+     {
+       id: "settings-main",
+       title: "Settings",
+       defaultWidth: 650,
+       defaultHeight: 600,
+       minWidth: 500,
+       minHeight: 400
+     }
+   ]
 };
 
 // Plugin manifests and init functions mapping
 const pluginConfigs: Record<string, { manifest: PluginManifest; init: () => Promise<void> }> = {
-  '@dineapp/pos': { manifest: posManifest, init: posInit },
-  '@dineapp/kds': { manifest: kdsManifest, init: kdsInit },
-  '@dineapp/inventory': { manifest: inventoryManifest, init: inventoryInit },
-  '@dineapp/analytics': { manifest: analyticsManifest, init: analyticsInit },
-  '@dineapp/menu': { manifest: menuManifest, init: menuInit },
+  '@dineapp/file-manager': { manifest: fileManagerManifest, init: fileManagerInit },
+  '@dineapp/terminal': { manifest: terminalManifest, init: terminalInit },
+  '@dineapp/calculator': { manifest: calculatorManifest, init: calculatorInit },
   '@dineapp/settings': { manifest: settingsManifest, init: settingsInit }
 };
 
