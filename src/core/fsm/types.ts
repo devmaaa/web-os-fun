@@ -97,6 +97,11 @@ export interface FSMInspection {
   transitions: Record<string, Partial<Record<string, string>>>;
   context?: Record<string, any>;
   metadata?: Record<string, any>;
+  cacheStats: {
+    transitionCacheSize: number;
+    canCacheSize: number;
+    possibleEventsCacheSize: number;
+  };
 }
 
 /**

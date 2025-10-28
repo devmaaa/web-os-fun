@@ -29,8 +29,7 @@ export class WindowService {
     // Allow for tiny jitter when comparing maximized geometry (scrollbar/zoom)
     private static readonly GEOM_EPS = 1; // px
 
-    // FSM state management
-    private windowFSMs = new Map<string, FSM<any, any>>();
+    // FSM state management is now handled globally by windowFSMManager
 
     // Animation tracking is now handled internally by the genie functions
 
@@ -47,39 +46,15 @@ export class WindowService {
     }
 
     private getFSM(id: string): FSM<any, any> | undefined {
-        return this.windowFSMs.get(id);
+        return getWindow(id);
     }
 
     private createWindowFSM(id: string, windowData: Partial<Window>): FSM<any, any> {
-        const fsm = createWindow(id, {
-            windowId: id,
-            pluginId: windowData.pluginId || 'unknown',
-            title: windowData.title || 'Window',
-            x: windowData.x ?? 100,
-            y: windowData.y ?? 100,
-             width: windowData.width ?? 650,
-            height: windowData.height ?? 300,
-            resizable: true,
-            maximizable: true,
-            minimizable: true,
-            focused: false,
-            zOrder: 0
-        });
-
-        this.windowFSMs.set(id, fsm);
-        return fsm;
+        return createWindow(id, windowData);
     }
 
     private destroyWindowFSM(id: string): void {
-        const fsm = this.windowFSMs.get(id);
-        if (fsm) {
-            // Ensure window is closed before destroying FSM
-            if (fsm.getState() !== 'closed') {
-                fsm.transition('close');
-            }
-            this.windowFSMs.delete(id);
-            destroyWindow(id);
-        }
+        destroyWindow(id);
     }
 
     private syncWindowStateWithFSM(id: string): void {
@@ -97,19 +72,10 @@ export class WindowService {
     }
 
     private mapFSMStateToWindowState(fsmState: string): WindowState {
-        const stateMapping: Record<string, WindowState> = {
-            'closed': 'normal',
-            'opening': 'opening',
-            'normal': 'normal',
-            'minimizing': 'minimizing',
-            'minimized': 'minimized',
-            'maximizing': 'maximizing',
-            'maximized': 'maximized',
-            'restoring': 'restoring',
-            'resizing': 'resizing',
-            'closing': 'closing'
-        };
-        return stateMapping[fsmState] as WindowState || 'normal';
+        // Most FSM states map directly to window states
+        return ['opening', 'minimizing', 'minimized', 'maximizing', 'maximized', 'restoring', 'resizing', 'closing'].includes(fsmState)
+            ? fsmState as WindowState
+            : 'normal'; // 'closed' and 'normal' both map to 'normal'
     }
 
     private getBounds() {
@@ -169,14 +135,21 @@ export class WindowService {
         }
 
         const currentCount = windows.length;
+        const newWindowWidth = options.width ?? 650;
+        const newWindowHeight = options.height ?? 500;
+
+        console.log(`[WindowService] Creating window: ${pluginId}`);
+        console.log(`[WindowService] Options width: ${options.width}, height: ${options.height}`);
+        console.log(`[WindowService] Final width: ${newWindowWidth}, height: ${newWindowHeight}`);
+
         const newWindow: Window = {
             id: `${pluginId}-${Date.now()}`,
             title,
             pluginId,
             x: options.x ?? 100 + currentCount * 50,
             y: options.y ?? 100 + currentCount * 50,
-            width: options.width ?? 650,
-            height: options.height ?? 300,
+            width: newWindowWidth,
+            height: newWindowHeight,
             state: 'normal',
             focused: true,
             zIndex: getNextZIndex(),
@@ -254,29 +227,15 @@ export class WindowService {
     }
 
     async minimizeWindow(id: string) {
-        console.log('🔥🔥 [WindowService] minimizeWindow called with ID:', id);
         const fsm = this.getFSM(id);
-        console.log('🔥🔥 [WindowService] FSM for window:', fsm);
-        console.log('🔥🔥 [WindowService] Can minimize?', fsm?.can('minimize'));
-
         if (!fsm || !fsm.can('minimize')) {
             console.warn(`[WindowService] Cannot minimize window "${id}" - FSM state doesn't allow it`);
             return;
         }
 
-        // Wrap the whole store update/animation in 'withStore'
-        console.log('🔥🔥 [WindowService] About to call withStoreAsync');
         await this.withStoreAsync(id, async (store) => {
-            console.log('🔥🔥 [WindowService] Inside withStoreAsync');
             const win = store.state;
-            console.log('🔥🔥 [WindowService] Current window state:', win.state);
-            if (win.state === 'minimized') {
-                console.log('🔥🔥 [WindowService] Window already minimized, returning');
-                return;
-            }
-
-            // Animation cancellation is now handled internally by the genie functions
-            console.log('🔥🔥 [WindowService] About to start FSM transition');
+            if (win.state === 'minimized') return;
 
             // Use FSM to handle minimization
             fsm.transition('minimize');
@@ -292,29 +251,20 @@ export class WindowService {
             const prev = { x: win.x, y: win.y, width: win.width, height: win.height, state: originalState };
             store.set({
                 previousState: prev,
-                // Do not set 'minimized' yet — wait until animation completes. This avoids UI removing the element mid-animation.
                 focused: false
             });
 
             // Find DOM element and start animation
             const el = findWindowElement(id);
-            console.log('[WindowService] Found element for animation:', el);
-            console.log('[WindowService] Window ID for animation:', id);
             if (el) {
                 try {
-                    console.log('[WindowService] About to call animateWindowGenieLamp');
-                    console.log('[WindowService] Element visibility before animation:', el.style.visibility);
                     await animateWindowGenieLamp(el, id);
-                    console.log('[WindowService] Animation completed successfully');
-                    console.log('[WindowService] Element visibility after animation:', el.style.visibility);
                 } catch (error) {
                     console.error('[WindowService] Animation failed:', error);
                 }
-            } else {
-                console.warn('[WindowService] No element found for window ID:', id);
             }
 
-            // After animation finishes, hide (Final: hide) and mark minimized in store
+            // After animation finishes, hide and mark minimized in store
             store.set({
                 state: 'minimized',
                 focused: false
@@ -324,22 +274,15 @@ export class WindowService {
         });
     }
 
-    // new helper: an async wrapper for withStore so we can await animation inside it.
+    // Async wrapper for withStore so we can await animation inside it
     private async withStoreAsync(id: string, fn: (store: WindowStore) => Promise<void> | void): Promise<void> {
-        console.log('🔥🔥 [withStoreAsync] Called with ID:', id);
         const store = getWindowStore(id);
-        console.log('🔥🔥 [withStoreAsync] Store found:', !!store);
-        if (!store) {
-            console.warn('🔥🔥 [withStoreAsync] No store found for ID:', id);
-            return;
-        }
-        console.log('🔥🔥 [withStoreAsync] About to execute function');
+        if (!store) return;
+
         try {
-            const result = Promise.resolve(fn(store));
-            console.log('🔥🔥 [withStoreAsync] Function executed, returning promise');
-            return result;
+            return Promise.resolve(fn(store));
         } catch (error) {
-            console.error('🔥🔥 [withStoreAsync] Error in function:', error);
+            console.error('[WindowService] Error in async operation:', error);
             throw error;
         }
     }
@@ -757,7 +700,7 @@ export class WindowService {
         return getWindowStore(id);
     }
 
-    // FSM-specific methods
+    // FSM-specific methods - delegate to global FSM manager
     getFSMState(id: string): string | undefined {
         const fsm = this.getFSM(id);
         return fsm?.getState();
@@ -766,17 +709,5 @@ export class WindowService {
     canExecuteOperation(id: string, operation: 'close' | 'minimize' | 'maximize' | 'restore' | 'focus' | 'resize_start' | 'resize_end'): boolean {
         const fsm = this.getFSM(id);
         return fsm ? fsm.can(operation) : false;
-    }
-
-    getFSMStats() {
-        return {
-            totalWindows: this.windowFSMs.size,
-            activeWindows: Array.from(this.windowFSMs.values()).filter(fsm => fsm.isEnabled()).length,
-            fsmStates: Array.from(this.windowFSMs.entries()).map(([id, fsm]) => ({
-                windowId: id,
-                state: fsm.getState(),
-                enabled: fsm.isEnabled()
-            }))
-        };
     }
 }

@@ -121,19 +121,19 @@ export function createWindowFSM(
   windowId: string,
   initialContext: Partial<WindowContext> = {}
 ): FSM<WindowState, WindowEvent> {
-  // Ensure required context fields have defaults
+  // Use initialContext values or fallback to sensible defaults
   const context: WindowContext = {
     windowId,
     x: 0,
     y: 0,
-    width: 600,
-    height: 600,
+    width: 650,  // Updated to match manifest defaults
+    height: 500, // Updated to match manifest defaults
     resizable: true,
     maximizable: true,
     minimizable: true,
     focused: false,
     zOrder: 0,
-    ...initialContext
+    ...initialContext  // This will override the defaults
   };
 
   const fsm = createFSM<WindowState, WindowEvent>(
