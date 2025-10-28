@@ -26,3 +26,8 @@ gitignore
 # System Files
 .DS_Store
 Thumbs.db
+# Documentation files
+docs/
+spec/
+*.md
+!README.md
