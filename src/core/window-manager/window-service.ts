@@ -138,9 +138,7 @@ export class WindowService {
         const newWindowWidth = options.width ?? 650;
         const newWindowHeight = options.height ?? 500;
 
-        console.log(`[WindowService] Creating window: ${pluginId}`);
-        console.log(`[WindowService] Options width: ${options.width}, height: ${options.height}`);
-        console.log(`[WindowService] Final width: ${newWindowWidth}, height: ${newWindowHeight}`);
+        // Removed excessive debug logging for memory efficiency
 
         const newWindow: Window = {
             id: `${pluginId}-${Date.now()}`,
@@ -241,18 +239,24 @@ export class WindowService {
             fsm.transition('minimize');
 
             const wasMaximized = win.state === 'maximized';
-            const originalState: WindowState = wasMaximized ? 'maximized' : 'normal';
 
             // Visual hint (optional CSS)
             store.update('state', 'minimizing');
             this.emit('window:minimizing', { id, pluginId: win.pluginId, title: win.title });
 
-            // Snapshot previous geometry BEFORE hiding
-            const prev = { x: win.x, y: win.y, width: win.width, height: win.height, state: originalState };
-            store.set({
-                previousState: prev,
-                focused: false
-            });
+            // If minimizing from maximized, don't overwrite the existing previousState
+            // (which should contain the original normal state from before maximization)
+            if (!wasMaximized) {
+                // Only save previousState if we're not minimizing from maximized
+                const prev = { x: win.x, y: win.y, width: win.width, height: win.height, state: 'normal' };
+                store.set({
+                    previousState: prev,
+                    focused: false
+                });
+            } else {
+                // When minimizing from maximized, just update focus, keep previousState intact
+                store.update('focused', false);
+            }
 
             // Find DOM element and start animation
             const el = findWindowElement(id);
@@ -361,58 +365,60 @@ export class WindowService {
         });
     }
 
-    async restoreWindow(id: string) {
+    restoreWindow(id: string) {
         const fsm = this.getFSM(id);
 
-        if (!fsm || !fsm.can('restore')) {
-            console.warn(`[WindowService] Cannot restore window "${id}" - FSM state doesn't allow it.`);
+        if (!fsm) {
+            console.error(`[WindowService] No FSM found for window "${id}"`);
             return;
         }
 
-        await this.withStoreAsync(id, async (store) => {
+        if (!fsm.can('restore')) {
+            console.warn(`[WindowService] Cannot restore window "${id}" - FSM state "${fsm.getState()}" doesn't allow restore.`);
+            return;
+        }
+
+        this.withStore(id, (store) => {
             const win = store.state;
             const prev = win.previousState;
 
             if (!prev) {
                 console.warn(`[WindowService] No previous state to restore for window "${id}".`);
-                // If no previous state, just set to normal and focus.
-                store.update('state', 'normal');
+                // If no previous state, just restore to normal
+                fsm.transition('restore');
                 this.focusWindow(id);
                 return;
             }
 
-            // 1. Set restoring state to have the element in DOM but keep it invisible
+            // Use FSM to handle restoration - this goes: minimized -> restoring -> target state
             fsm.transition('restore');
-            store.update('state', 'restoring');
-            this.emit('window:restoring', { id, pluginId: win.pluginId, title: win.title });
 
-            // Wait for SolidJS to render the element
-            await new Promise(r => setTimeout(r, 0));
+            // If the previous state was maximized, we need to continue the transition
+            if (prev.state === 'maximized') {
+                // Complete the FSM transition to maximized
+                fsm.transition('maximize');
 
-            const el = findWindowElement(id);
-
-            if (el) {
-                // 2. Run animation
-                el.style.visibility = 'hidden';
-                try {
-                    await animateWindowGenieReverse(el, id);
-                } catch (error) {
-                    console.error('[WindowService] Reverse animation failed:', error);
-                }
-                el.style.visibility = 'visible';
+                // Apply maximized geometry
+                const b = this.getBounds();
+                store.set({
+                    state: 'maximized',
+                    x: b.offsetLeft,
+                    y: b.offsetTop,
+                    width: b.width,
+                    height: b.height - WindowService.TASKBAR_HEIGHT,
+                    previousState: undefined, // Clear previousState after successful restore
+                });
             } else {
-                console.warn('[WindowService] Could not find window element for restore animation:', id);
+                // For normal state, use the stored geometry
+                store.set({
+                    state: prev.state,
+                    x: prev.x,
+                    y: prev.y,
+                    width: prev.width,
+                    height: prev.height,
+                    previousState: undefined, // Clear previousState after successful restore
+                });
             }
-
-            // 3. Set final state from `previousState`
-            store.set({
-                state: prev.state,
-                x: prev.x,
-                y: prev.y,
-                width: prev.width,
-                height: prev.height,
-                previousState: undefined,
-            });
 
             this.focusWindow(id);
 

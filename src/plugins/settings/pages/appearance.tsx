@@ -120,7 +120,7 @@ const AppearancePage: Component = () => {
     <div class="h-full flex flex-col">
       {/* Tab Navigation */}
       <div class="px-4 pt-2 pb-4">
-        <div class="p-1.5 max-w-md mx-auto flex space-x-1 rounded-lg bg-bg-secondary">
+        <div class="p-1.5 max-w-md mx-auto flex flex-wrap justify-center gap-1 rounded-lg bg-bg-secondary">
           {[
             { id: 'themes', label: 'Themes', icon: '🎨' },
             { id: 'wallpaper', label: 'Wallpaper', icon: '🖼️' },
@@ -128,7 +128,7 @@ const AppearancePage: Component = () => {
             { id: 'advanced', label: 'Advanced', icon: '⚙️' }
           ].map((tab) => (
             <button
-              class={`w-full flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              class={`flex-grow flex items-center justify-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 activeTab() === tab.id
                   ? 'bg-bg-primary text-accent shadow'
                   : 'text-text-secondary hover:bg-bg-primary/50'

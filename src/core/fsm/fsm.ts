@@ -18,10 +18,13 @@ export class FSM<S extends string, E extends string> {
   private metadata?: Record<string, any>;
   private enabled = true;
 
-  // Performance optimization: transition and state caching
+  // Performance optimization: transition and state caching with size limits
   private transitionCache = new Map<string, S | null>();
   private canCache = new Map<string, boolean>();
   private possibleEventsCache = new Map<string, E[]>();
+
+  // Memory optimization: limit cache sizes
+  private readonly MAX_CACHE_SIZE = 50;
 
   constructor(
     id: string,
@@ -72,9 +75,13 @@ export class FSM<S extends string, E extends string> {
       return this.canCache.get(cacheKey)!;
     }
 
-    // Compute and cache result
+    // Compute and cache result with size limit
     const result = !!this.transitions[this.state]?.[event];
     this.canCache.set(cacheKey, result);
+    if (this.canCache.size > this.MAX_CACHE_SIZE) {
+      const firstKey = this.canCache.keys().next().value;
+      if (firstKey) this.canCache.delete(firstKey);
+    }
     return result;
   }
 
@@ -90,9 +97,13 @@ export class FSM<S extends string, E extends string> {
       return this.possibleEventsCache.get(this.state)!;
     }
 
-    // Compute and cache result
+    // Compute and cache result with size limit
     const events = Object.keys(this.transitions[this.state] || {}) as E[];
     this.possibleEventsCache.set(this.state, events);
+    if (this.possibleEventsCache.size > this.MAX_CACHE_SIZE) {
+      const firstKey = this.possibleEventsCache.keys().next().value;
+      if (firstKey) this.possibleEventsCache.delete(firstKey);
+    }
     return events;
   }
 
@@ -170,8 +181,13 @@ export class FSM<S extends string, E extends string> {
       }
       // Don't cache transitions with validators as they're context-dependent
     } else {
-      // Cache valid simple transition
+      // Cache valid simple transition with size limit
       this.transitionCache.set(cacheKey, nextState);
+      if (this.transitionCache.size > this.MAX_CACHE_SIZE) {
+        // Remove oldest entry (first item in Map preserves insertion order)
+        const firstKey = this.transitionCache.keys().next().value;
+        if (firstKey) this.transitionCache.delete(firstKey);
+      }
     }
 
     this.state = nextState;

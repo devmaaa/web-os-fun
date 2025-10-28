@@ -231,11 +231,11 @@ class EventBus {
   }
 }
 
-// Initialize with development diagnostics enabled
+// Initialize with limited diagnostics for memory efficiency
 const isDev = import.meta.env.DEV;
 export const eventBus = new EventBus({
   enableBroadcastChannel: false, // Enable for multi-tab support
-  enableDiagnostics: isDev
+  enableDiagnostics: isDev && false // Disable diagnostics even in dev for memory efficiency
 });
 
 // Add inspect method to window for debugging

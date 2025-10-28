@@ -7,12 +7,13 @@ import FileList from './widgets/file-list';
 import Toolbar from './widgets/toolbar';
 import Sidebar from './widgets/sidebar';
 import type { FileItem } from './entities/file';
-import './FileManager.css';
+
 
 const FileManager: Component = () => {
   const [files, setFiles] = createSignal<FileItem[]>([]);
   const [viewMode, setViewMode] = createSignal<'list' | 'grid'>('grid');
   const [isLoading, setIsLoading] = createSignal(false);
+  const [isSidebarOpen, setIsSidebarOpen] = createSignal(false);
 
   const navigationAPI = NavigationAPI.getInstance();
   const fileOpsAPI = FileOperationsAPI.getInstance();
@@ -78,9 +79,15 @@ const FileManager: Component = () => {
   };
 
   return (
-    <div class="file-manager h-full flex bg-white dark:bg-gray-800">
-      <Sidebar />
-      <main class="flex-1 flex flex-col">
+    <div class="file-manager h-full flex bg-white dark:bg-gray-800 relative">
+      <Sidebar isOpen={isSidebarOpen()} onClose={() => setIsSidebarOpen(false)} />
+      
+      {/* Sidebar overlay for mobile */}
+      <Show when={isSidebarOpen()}>
+        <div class="fixed inset-0 bg-black/30 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>
+      </Show>
+
+      <main class="flex-1 flex flex-col overflow-hidden">
         {/* Toolbar */}
         <Toolbar
           currentPath={navigationModel.currentPath()}
@@ -89,6 +96,7 @@ const FileManager: Component = () => {
           onRefresh={handleRefresh}
           onNewFolder={handleNewFolder}
           onNewFile={handleNewFile}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen())}
         />
 
         {/* File List */}

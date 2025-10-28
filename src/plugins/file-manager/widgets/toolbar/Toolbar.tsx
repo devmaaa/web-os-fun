@@ -2,7 +2,7 @@ import { Component, For, Show } from 'solid-js';
 import { navigationModel } from '../../features/navigation';
 import { fileOperationsModel } from '../../features/file-operations';
 import Breadcrumb from '../breadcrumb';
-import './Toolbar.css'; // Keep for custom scrollbar if needed, otherwise remove
+
 
 interface ToolbarProps {
   currentPath: string;
@@ -11,6 +11,7 @@ interface ToolbarProps {
   onRefresh: () => void;
   onNewFolder: () => void;
   onNewFile: () => void;
+  onToggleSidebar: () => void;
 }
 
 const Toolbar: Component<ToolbarProps> = (props) => {
@@ -22,6 +23,13 @@ const Toolbar: Component<ToolbarProps> = (props) => {
     <div class="flex items-center justify-between p-2 bg-gray-100/80 dark:bg-gray-800/80 border-b border-gray-200 dark:border-gray-700/60 text-gray-700 dark:text-gray-200">
       {/* Left section: Navigation buttons */}
       <div class="flex items-center gap-1">
+        <button
+          onClick={props.onToggleSidebar}
+          class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 md:hidden"
+          title="Toggle Sidebar"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>
+        </button>
         <button
           onClick={() => navigationModel.goBack()}
           disabled={navigationModel.pathHistory().length <= 1}
@@ -43,7 +51,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
       {/* Center section: Breadcrumbs and Search */}
       <div class="flex items-center flex-grow mx-4 gap-4">
         <Breadcrumb path={props.currentPath} onPathChange={handlePathChange} />
-        <div class="relative flex-grow">
+        <div class="relative flex-grow hidden sm:block">
           <input
             type="text"
             placeholder="Search"
@@ -65,26 +73,28 @@ const Toolbar: Component<ToolbarProps> = (props) => {
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-cw"><path d="M21 12a9 9 0 0 0-9-9c-7.27 0-9 1.8-9 9s1.8 9 9 9c3.63 0 6.7-1.25 9-3"/><path d="M17 22v-5h5"/></svg>
         </button>
 
-        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1 hidden sm:block"></div>
 
-        <button
-          onClick={() => props.onViewModeChange('list')}
-          class={`p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors ${
-            props.viewMode === 'list' ? 'bg-blue-500 text-white' : ''
-          }`}
-          title="List View"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
-        </button>
-        <button
-          onClick={() => props.onViewModeChange('grid')}
-          class={`p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors ${
-            props.viewMode === 'grid' ? 'bg-blue-500 text-white' : ''
-          }`}
-          title="Grid View"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        </button>
+        <div class="hidden sm:flex items-center gap-1">
+          <button
+            onClick={() => props.onViewModeChange('list')}
+            class={`p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors ${
+              props.viewMode === 'list' ? 'bg-blue-500 text-white' : ''
+            }`}
+            title="List View"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+          </button>
+          <button
+            onClick={() => props.onViewModeChange('grid')}
+            class={`p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors ${
+              props.viewMode === 'grid' ? 'bg-blue-500 text-white' : ''
+            }`}
+            title="Grid View"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </button>
+        </div>
 
         <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
@@ -97,7 +107,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
         </button>
         <button
           onClick={props.onNewFile}
-          class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors"
+          class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors hidden sm:block"
           title="New File"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-plus"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>

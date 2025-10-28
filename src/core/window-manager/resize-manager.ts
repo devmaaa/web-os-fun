@@ -46,9 +46,20 @@ export class ResizeManager {
   private lastResizeTime = 0;
   private averageResizeLatency = 0;
 
+  // Fix memory leak: store bound event handlers
+  private boundHandleMouseMove: (e: MouseEvent) => void;
+  private boundHandleMouseUp: (e: MouseEvent) => void;
+
+  // Separate RAF ID for mouse move throttling
+  private mouseMoveRafId: number | null = null;
+
   constructor() {
     // Create shared ResizeObserver for all windows
     this.resizeObserver = createResizeObserver(this.handleResize.bind(this));
+
+    // Fix memory leak: create bound handlers once
+    this.boundHandleMouseMove = this.handleMouseMove.bind(this);
+    this.boundHandleMouseUp = this.handleMouseUp.bind(this);
 
     // Listen to FSM resize state changes
     this.setupFSMListeners();
@@ -260,9 +271,9 @@ export class ResizeManager {
       });
     }
 
-    // Add global mouse listeners
-    document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    document.addEventListener('mouseup', this.handleMouseUp.bind(this));
+    // Add global mouse listeners (using bound handlers to prevent memory leaks)
+    document.addEventListener('mousemove', this.boundHandleMouseMove);
+    document.addEventListener('mouseup', this.boundHandleMouseUp);
 
     // Emit resize start event
     eventBus.emitSync('window:resize_start', {
@@ -277,45 +288,54 @@ export class ResizeManager {
   }
 
   /**
-   * Handle mouse move during resize
+   * Handle mouse move during resize (RAF-throttled for performance)
    */
   private handleMouseMove(event: MouseEvent): void {
     if (this.activeResizes.size === 0) return;
 
+    // Skip if we already have a pending RAF
+    if (this.mouseMoveRafId) return;
+
     const startTime = performance.now();
 
-    for (const [windowId, resizeState] of this.activeResizes) {
-      const store = getWindowStore(windowId);
-      if (!store) continue;
+    // Throttle with RAF for 60fps performance
+    this.mouseMoveRafId = requestAnimationFrame(() => {
+      for (const [windowId, resizeState] of this.activeResizes) {
+        const store = getWindowStore(windowId);
+        if (!store) continue;
 
-      const window = store.state;
+        const window = store.state;
 
-      // Use the new calculation hook for consistent resize behavior
-      const resizeResult = calculateResize(resizeState.handle, {
-        mouseX: event.clientX,
-        mouseY: event.clientY,
-        windowState: resizeState.startState
-      }, {
-        minWidth: window.minWidth || 200,
-        minHeight: window.minHeight || 150
+        // Use the new calculation hook for consistent resize behavior
+        const resizeResult = calculateResize(resizeState.handle, {
+          mouseX: event.clientX,
+          mouseY: event.clientY,
+          windowState: resizeState.startState
+        }, {
+          minWidth: window.minWidth || 200,
+          minHeight: window.minHeight || 150
+        });
+
+        // Update window store with new dimensions and position
+        store.set({
+          width: resizeResult.newWidth,
+          height: resizeResult.newHeight,
+          x: resizeResult.newX,
+          y: resizeResult.newY
+        });
+      }
+
+      // Update performance metrics
+      const latency = performance.now() - startTime;
+      this.updatePerformanceMetrics(latency);
+
+      // Emit resize event
+      eventBus.emitSync('window:resizing', {
+        timestamp: Date.now()
       });
 
-      // Update window store with new dimensions and position
-      store.set({
-        width: resizeResult.newWidth,
-        height: resizeResult.newHeight,
-        x: resizeResult.newX,
-        y: resizeResult.newY
-      });
-    }
-
-    // Update performance metrics
-    const latency = performance.now() - startTime;
-    this.updatePerformanceMetrics(latency);
-
-    // Emit resize event
-    eventBus.emitSync('window:resizing', {
-      timestamp: Date.now()
+      // Clear RAF ID
+      this.mouseMoveRafId = null;
     });
   }
 
@@ -332,9 +352,15 @@ export class ResizeManager {
       this.endResize(windowId);
     }
 
-    // Remove global listeners
-    document.removeEventListener('mousemove', this.handleMouseMove.bind(this));
-    document.removeEventListener('mouseup', this.handleMouseUp.bind(this));
+    // Clean up RAF if still pending
+    if (this.mouseMoveRafId) {
+      cancelAnimationFrame(this.mouseMoveRafId);
+      this.mouseMoveRafId = null;
+    }
+
+    // Remove global listeners (using the same bound handler references)
+    document.removeEventListener('mousemove', this.boundHandleMouseMove);
+    document.removeEventListener('mouseup', this.boundHandleMouseUp);
   }
 
   /**
@@ -513,6 +539,11 @@ export class ResizeManager {
     if (this.rafId) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
+    }
+
+    if (this.mouseMoveRafId) {
+      cancelAnimationFrame(this.mouseMoveRafId);
+      this.mouseMoveRafId = null;
     }
 
     this.resizeObserver.disconnect();

@@ -12,9 +12,13 @@ class FSMRegistryImpl implements FSMRegistry {
   private fsms = new Map<string, FSM<any, any>>();
   private metrics = new Map<string, FSMPerformanceMetrics>();
   private recentEvents = new Set<any>();
-  private maxRecentEvents = 100;
+  private maxRecentEvents = 50; // Reduced from 100 for memory optimization
   private enabled = true;
   private fsmScopes = new Map<string, string>(); // fsmId -> scope name for cleanup
+
+  // Memory optimization: periodic cleanup
+  private cleanupTimer?: number;
+  private readonly CLEANUP_INTERVAL = 30000; // 30 seconds
 
   /**
    * Register an FSM with the registry
@@ -199,7 +203,26 @@ class FSMRegistryImpl implements FSMRegistry {
    * Clear recent events log
    */
   clearRecentEvents(): void {
-    this.recentEvents = [];
+    this.recentEvents.clear();
+  }
+
+  /**
+   * Memory optimization: cleanup old metrics and events
+   */
+  performMemoryCleanup(): void {
+    // Clear recent events periodically
+    this.clearRecentEvents();
+
+    // Clean up metrics for destroyed FSMs
+    for (const [id, fsm] of this.fsms) {
+      try {
+        // Check if FSM is still responsive
+        fsm.getState();
+      } catch {
+        // FSM is broken, remove it
+        this.unregister(id);
+      }
+    }
   }
 
   /**

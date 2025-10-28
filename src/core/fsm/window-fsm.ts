@@ -67,7 +67,7 @@ const WINDOW_TRANSITIONS: Record<WindowState, Partial<Record<WindowEvent, Window
 
   // Minimized window can be restored or closed
   minimized: {
-    restore: 'normal',
+    restore: 'restoring',
     close: 'closing'
   },
 

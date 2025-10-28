@@ -1,5 +1,4 @@
 import { Component, createSignal, onMount, createEffect, For } from 'solid-js';
-import './Terminal.css';
 
 interface TerminalLine {
   type: 'input' | 'output' | 'error' | 'success';
@@ -69,21 +68,7 @@ const Terminal: Component = () => {
       case 'help':
         outputLines.push({
           type: 'output',
-          content: `Available commands:
-  help     - Show this help message
-  clear    - Clear terminal screen
-  ls       - List directory contents
-  cd       - Change directory
-  pwd      - Print working directory
-  mkdir    - Create directory
-  touch    - Create file
-  echo     - Display message
-  date     - Show current date and time
-  whoami   - Display current user
-  uname    - Display system information
-  cat      - Display file contents
-  cal      - Display calendar
-  neofetch - Display system information (stylized)`,
+          content: `Available commands:\n  help     - Show this help message\n  clear    - Clear terminal screen\n  ls       - List directory contents\n  cd       - Change directory\n  pwd      - Print working directory\n  mkdir    - Create directory\n  touch    - Create file\n  echo     - Display message\n  date     - Show current date and time\n  whoami   - Display current user\n  uname    - Display system information\n  cat      - Display file contents\n  cal      - Display calendar\n  neofetch - Display system information (stylized)`,
           timestamp: Date.now()
         });
         break;
@@ -206,13 +191,7 @@ const Terminal: Component = () => {
         const year = now.getFullYear();
         outputLines.push({
           type: 'output',
-          content: `     ${month} ${year}
-Su Mo Tu We Th Fr Sa
- 1  2  3  4  5  6  7
- 8  9 10 11 12 13 14
-15 16 17 18 19 20 21
-22 23 24 25 26 27 28
-29 30 31`,
+          content: `     ${month} ${year}\nSu Mo Tu We Th Fr Sa\n 1  2  3  4  5  6  7\n 8  9 10 11 12 13 14\n15 16 17 18 19 20 21\n22 23 24 25 26 27 28\n29 30 31`,
           timestamp: Date.now()
         });
         break;
@@ -220,14 +199,7 @@ Su Mo Tu We Th Fr Sa
       case 'neofetch':
         outputLines.push({
           type: 'output',
-          content: `       _____       user@webos
-      /     \\      -------
-     /  Web  \\     OS: WebOS 1.0.0
-    |   OS    |    Kernel: JavaScript
-    |  v1.0.0  |    Shell: Terminal
-     \\         /    Resolution: 1920x1080
-      \\_____/     Theme: System Default
-                   Terminal: WebOS Terminal`,
+          content: `       _____       user@webos\n      /     \      -------\n     /  Web  \     OS: WebOS 1.0.0\n    |   OS    |    Kernel: JavaScript\n    |  v1.0.0  |    Shell: Terminal\n     \         /    Resolution: 1920x1080\n      \_____/     Theme: System Default\n                   Terminal: WebOS Terminal`,
           timestamp: Date.now()
         });
         break;
@@ -267,42 +239,33 @@ Su Mo Tu We Th Fr Sa
     }
   };
 
-  const getLineClass = (line: TerminalLine) => {
-    const baseClass = 'terminal-line';
-    switch (line.type) {
-      case 'input':
-        return `${baseClass} terminal-input`;
-      case 'output':
-        return `${baseClass} terminal-output`;
-      case 'error':
-        return `${baseClass} terminal-error`;
-      case 'success':
-        return `${baseClass} terminal-success`;
-      default:
-        return baseClass;
-    }
+  const lineClasses = {
+    input: 'text-green-400',
+    output: 'text-gray-200',
+    error: 'text-red-500',
+    success: 'text-green-400',
   };
 
   return (
-    <div class="terminal h-full flex flex-col bg-black dark:bg-black" onClick={() => inputRef?.focus()}>
+    <div class="h-full flex flex-col bg-black font-mono selection:bg-gray-700 selection:text-gray-200" onClick={() => inputRef?.focus()}>
   
       {/* Terminal Content */}
       <div
         ref={terminalRef!}
-        class="terminal-content flex-1 p-4 overflow-auto font-mono text-sm"
+        class="flex-1 p-4 overflow-auto text-sm focus-within:outline-none"
         tabIndex={0}
       >
         <For each={history()}>
           {(line) => (
-            <div class={getLineClass(line)}>
+            <div class={`my-0.5 leading-normal ${lineClasses[line.type]}`}>
               <pre class="whitespace-pre-wrap">{line.content}</pre>
             </div>
           )}
         </For>
 
         {/* Input Line */}
-        <div class="terminal-input-line flex items-center">
-          <span class="terminal-prompt text-green-400 mr-2">
+        <div class="flex items-center">
+          <span class="text-green-400 mr-2 select-none">
             {currentDirectory()} $
           </span>
           <input
@@ -311,7 +274,7 @@ Su Mo Tu We Th Fr Sa
             value={currentInput()}
             onInput={(e) => setCurrentInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            class="terminal-input flex-1 bg-transparent outline-none text-green-400"
+            class="flex-1 bg-transparent outline-none text-green-400 caret-green-500"
             spellcheck={false}
             autocomplete="off"
             autocorrect="off"
