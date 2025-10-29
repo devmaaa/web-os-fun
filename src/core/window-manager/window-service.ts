@@ -26,6 +26,7 @@ import type { ResizeHandle } from './use-resize-calculations';
 export class WindowService {
     // ==== Constants ====
     private static readonly TASKBAR_HEIGHT = 48;
+    private static readonly MENUBAR_HEIGHT = 26; // MenuBar height from MenuBar.tsx
     // Allow for tiny jitter when comparing maximized geometry (scrollbar/zoom)
     private static readonly GEOM_EPS = 1; // px
 
@@ -101,11 +102,12 @@ export class WindowService {
 
     private isGeometryMaximized(win: Window): boolean {
         const b = this.getBounds();
-        const expectedHeight = b.height - WindowService.TASKBAR_HEIGHT;
+        const expectedHeight = b.height - WindowService.MENUBAR_HEIGHT; // Height minus MenuBar
+        const expectedY = b.offsetTop + WindowService.MENUBAR_HEIGHT; // Start below MenuBar
         const eq = (a: number, b: number) => Math.abs(a - b) <= WindowService.GEOM_EPS;
         return (
             eq(win.x, b.offsetLeft) &&
-            eq(win.y, b.offsetTop) &&
+            eq(win.y, expectedY) &&
             eq(win.width, b.width) &&
             eq(win.height, expectedHeight)
         );
@@ -135,8 +137,8 @@ export class WindowService {
         }
 
         const currentCount = windows.length;
-        const newWindowWidth = options.width ?? 650;
-        const newWindowHeight = options.height ?? 500;
+        const newWindowWidth = options.width ?? 800;
+        const newWindowHeight = options.height ?? 600;
 
         // Removed excessive debug logging for memory efficiency
 
@@ -311,9 +313,9 @@ export class WindowService {
             store.set({
                 state: 'maximized',
                 x: b.offsetLeft,
-                y: b.offsetTop,
+                y: b.offsetTop + WindowService.MENUBAR_HEIGHT, // Account for MenuBar
                 width: b.width,
-                height: b.height - WindowService.TASKBAR_HEIGHT,
+                height: b.height - WindowService.MENUBAR_HEIGHT, // Full height minus MenuBar
             });
 
             // Re-render only when geometry or stacking changes
@@ -403,9 +405,9 @@ export class WindowService {
                 store.set({
                     state: 'maximized',
                     x: b.offsetLeft,
-                    y: b.offsetTop,
+                    y: b.offsetTop + WindowService.MENUBAR_HEIGHT, // Account for MenuBar
                     width: b.width,
-                    height: b.height - WindowService.TASKBAR_HEIGHT,
+                    height: b.height - WindowService.MENUBAR_HEIGHT, // Full height minus MenuBar
                     previousState: undefined, // Clear previousState after successful restore
                 });
             } else {

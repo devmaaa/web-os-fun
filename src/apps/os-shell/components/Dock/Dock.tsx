@@ -246,6 +246,7 @@ function Dock(props: DockProps) {
     });
   };
 
+  
   const handleWindowRestored = (event: any) => {
     // Guard against undefined event structure
     if (!event || !event.data) return;
@@ -486,7 +487,7 @@ function Dock(props: DockProps) {
   return (
     <div class="dock">
       <div
-        class="dock-background"
+        class={`dock-background ${dynamicGap() !== 12 ? 'gap-[var(--dock-gap)]' : ''}`}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={{ '--dock-gap': `${dynamicGap()}px` }}

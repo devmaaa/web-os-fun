@@ -1,6 +1,7 @@
 import { Component, For } from 'solid-js';
 import { pluginLoader } from '@core/plugin-loader';
 import { pluginComponents, getAvailablePlugins } from '@plugins/index';
+import { cn } from '../../../utils/cn';
 
 interface DesktopIconsProps {
   onAppOpen: (pluginId: string) => void;
@@ -21,11 +22,7 @@ const DesktopIcons: Component<DesktopIconsProps> = (props) => {
         <For each={availablePlugins()}>
           {(plugin) => (
             <button
-              class="flex flex-col items-center justify-center p-4 rounded-lg hover:bg-bg-secondary hover:bg-opacity-20 transition-colors cursor-pointer"
-              style={{
-                'background-color': 'transparent',
-                color: 'var(--text-primary)'
-              }}
+              class="flex flex-col items-center justify-center p-4 rounded-lg hover:bg-bg-secondary hover:bg-opacity-20 transition-colors cursor-pointer bg-transparent text-text-primary"
               onClick={() => props.onAppOpen(plugin.id)}
               title={plugin.displayName}
             >

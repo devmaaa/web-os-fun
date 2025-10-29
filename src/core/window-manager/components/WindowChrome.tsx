@@ -1,5 +1,6 @@
  import { Component } from 'solid-js';
  import { windowManager } from '../index';
+ import { cn } from '../../../utils/cn';
 
 interface WindowChromeProps {
   windowId: string;
@@ -43,19 +44,24 @@ const WindowChrome: Component<WindowChromeProps> = (props) => {
   return (
     <>
       <style>{keyframes}</style>
-      <div class={`
-        flex items-center justify-between h-8 px-3 select-none cursor-default transition-all duration-200 ease-in-out
-        backdrop-blur-[20px] border-b
-        md:h-7 md:px-2
-        ${props.isFocused
-          ? 'bg-white/95 border-black/10'
-          : 'bg-white/80 border-black/5'
-        }
-        dark:${props.isFocused
-          ? 'bg-gray-900 border-gray-700'
-          : 'bg-gray-800 border-gray-600'
-        }
-      `}>
+      <div
+        class={cn(
+          // Base chrome classes
+          'flex items-center justify-between h-8 px-3 select-none cursor-default transition-all duration-200 ease-in-out',
+          'backdrop-blur-[20px] border-b',
+          'md:h-7 md:px-2',
+          // Theme-aware background and border
+          props.isFocused
+            ? 'bg-opacity-95 border-opacity-20'
+            : 'bg-opacity-80 border-opacity-10'
+        )}
+        style={{
+          'background-color': props.isFocused
+            ? 'var(--color-bg-primary)'
+            : 'var(--color-bg-secondary)',
+          'border-color': 'var(--color-border-primary)'
+        }}
+      >
         {/* Traffic light controls */}
         <div class="flex items-center gap-3 relative z-20">
           <button
@@ -87,10 +93,13 @@ const WindowChrome: Component<WindowChromeProps> = (props) => {
 
         {/* Title bar - draggable area */}
         <div
-          class="absolute left-1/2 -translate-x-1/2 text-[13px] font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] text-black dark:text-white md:text-[12px] md:max-w-[200px]"
+          class="absolute left-1/2 -translate-x-1/2 text-[13px] font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] md:text-[12px] md:max-w-[200px]"
           onDblClick={props.onDoubleClick}
           onMouseDown={props.onMouseDown}
-          style={{ cursor: 'grab' }}
+          style={{
+            cursor: 'grab',
+            color: 'var(--color-text-primary)'
+          }}
         >
           {props.title}
         </div>

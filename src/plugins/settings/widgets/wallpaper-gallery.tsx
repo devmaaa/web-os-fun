@@ -148,11 +148,11 @@ const WallpaperGallery: Component<WallpaperGalleryProps> = (props) => {
                 <div class="text-center py-8">...</div>
             </Show>
 
-            <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
                 <For each={wallpapers()}>
                     {(wallpaper) => (
                         <div
-                            class="relative group rounded-md overflow-hidden border-2 transition-all hover:shadow-md cursor-pointer aspect-video"
+                            class="relative group rounded-md overflow-hidden border-2 transition-all hover:shadow-md cursor-pointer flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"
                             classList={{
                                 'border-accent ring-2 ring-accent/50': isSelected(wallpaper),
                                 'border-border-primary hover:border-accent': !isSelected(wallpaper),
@@ -165,15 +165,15 @@ const WallpaperGallery: Component<WallpaperGalleryProps> = (props) => {
                             <Show when={!getWallpaperPreview(wallpaper)}>
                                 <div class="w-full h-full" style={{ background: wallpaper.config.value }} />
                             </Show>
-                            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-1 sm:p-2">
                                 <p class="text-white text-xs font-medium truncate">{wallpaper.name}</p>
                             </div>
                             {(wallpaper.type === 'custom' || wallpaper.type === 'url') && (
                                 <button
-                                    class="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    class="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 bg-black/50 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                                     onClick={(e) => handleRemoveWallpaper(wallpaper.id, e)}
                                 >
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
                                 </button>
                             )}
                         </div>

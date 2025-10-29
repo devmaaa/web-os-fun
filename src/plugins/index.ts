@@ -85,9 +85,9 @@ const calculatorManifest: PluginManifest = {
      {
        id: "calculator-main",
        title: "Calculator",
-       defaultWidth: 650,
+       defaultWidth: 320,
        defaultHeight: 500,
-       minWidth: 300,
+       minWidth: 250,
        minHeight: 400
      }
    ]

@@ -4,6 +4,23 @@ import { WindowFrame, WindowChrome, WindowContent } from '@core/window-manager/c
 // Import resize-manager to initialize it
 import { resizeManager } from '@core/window-manager/resize-manager';
 
+// Function to apply window positioning and sizing using data attributes
+const applyWindowStyles = (element: HTMLElement) => {
+  const x = element.getAttribute('data-x');
+  const y = element.getAttribute('data-y');
+  const width = element.getAttribute('data-width');
+  const height = element.getAttribute('data-height');
+  const minWidth = element.getAttribute('data-min-width');
+  const zIndex = element.getAttribute('data-z-index');
+
+  if (x) element.style.setProperty('--x', `${x}px`);
+  if (y) element.style.setProperty('--y', `${y}px`);
+  if (width) element.style.setProperty('--width', `${width}px`);
+  if (height) element.style.setProperty('--height', `${height}px`);
+  if (minWidth) element.style.setProperty('--min-width', `${minWidth}px`);
+  if (zIndex) element.style.zIndex = parseInt(zIndex);
+};
+
 interface WindowManagerProps {}
 
 const WindowManager: Component<WindowManagerProps> = () => {
@@ -100,6 +117,47 @@ const WindowManager: Component<WindowManagerProps> = () => {
 
     document.addEventListener('mousemove', boundHandleMouseMove);
     document.addEventListener('mouseup', boundHandleMouseUp);
+
+    // Apply window styles using MutationObserver
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as HTMLElement;
+            if (element.classList.contains('window-wrapper')) {
+              applyWindowStyles(element);
+            }
+            // Also check child elements
+            const windowElements = element.querySelectorAll('.window-wrapper');
+            windowElements.forEach(applyWindowStyles);
+          }
+        });
+      });
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['data-x', 'data-y', 'data-width', 'data-height', 'data-min-width', 'data-z-index']
+    });
+
+    // Also apply styles to existing windows and set up an interval for updates
+    const updateAllWindows = () => {
+      const windows = document.querySelectorAll('.window-wrapper');
+      windows.forEach(applyWindowStyles);
+    };
+
+    // Initial update
+    updateAllWindows();
+
+    // Set up reactive updates for window position/size changes
+    const updateInterval = setInterval(updateAllWindows, 16); // ~60fps
+
+    onCleanup(() => {
+      observer.disconnect();
+      clearInterval(updateInterval);
+    });
   });
 
   onCleanup(() => {

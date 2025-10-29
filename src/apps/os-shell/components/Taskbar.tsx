@@ -1,6 +1,7 @@
 import { Component, For } from 'solid-js';
 import { windowManager } from '@core/window-manager';
 import { pluginLoader } from '@core/plugin-loader';
+import { cn } from '../../../utils/cn';
 
 interface TaskbarProps {
   currentTime: Date;
@@ -14,11 +15,7 @@ const Taskbar: Component<TaskbarProps> = (props) => {
     <div class="taskbar absolute bottom-0 left-0 right-0 flex items-center px-2 shadow-lg">
       {/* Start Button */}
       <button
-        class="px-4 py-2 rounded mr-4 font-semibold"
-        style={{
-          'background-color': 'var(--accent-color)',
-          color: 'white'
-        }}
+        class="px-4 py-2 rounded mr-4 font-semibold bg-accent text-text-inverse"
         onClick={() => {
           const allPlugins = pluginLoader.plugins;
           const firstPlugin = allPlugins[0];
@@ -36,11 +33,12 @@ const Taskbar: Component<TaskbarProps> = (props) => {
           {(window) => (
             <button
                 data-window-id={window.id}
-              class="px-3 py-2 rounded text-sm"
-              style={{
-                'background-color': window.focused ? 'var(--accent-color)' : 'transparent',
-                color: window.focused ? 'white' : 'var(--text-primary)'
-              }}
+              class={cn(
+                "px-3 py-2 rounded text-sm",
+                window.focused
+                  ? "bg-accent text-text-inverse"
+                  : "bg-transparent text-text-primary"
+              )}
               onClick={() => {
                 if (window.state === 'minimized') {
                   windowManager.restoreWindow(window.id);
@@ -65,11 +63,7 @@ const Taskbar: Component<TaskbarProps> = (props) => {
       <div class="flex items-center gap-3 ml-4">
         {/* Theme Toggle */}
         <button
-          class="p-2 rounded"
-          style={{
-            'background-color': 'transparent',
-            color: 'var(--text-primary)'
-          }}
+          class="p-2 rounded bg-transparent text-text-primary hover:bg-bg-secondary"
           onClick={props.onThemeToggle}
         >
           {props.theme === 'light' ? '🌙' : '☀️'}
@@ -77,11 +71,7 @@ const Taskbar: Component<TaskbarProps> = (props) => {
 
         {/* Clock */}
         <div
-          class="px-3 py-1 rounded text-sm font-medium"
-          style={{
-            'background-color': 'var(--bg-tertiary)',
-            color: 'var(--text-primary)'
-          }}
+          class="px-3 py-1 rounded text-sm font-medium bg-bg-tertiary text-text-primary"
         >
           {props.currentTime.toLocaleTimeString()}
         </div>
