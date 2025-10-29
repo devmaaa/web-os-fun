@@ -179,28 +179,28 @@ export const builtInThemes: Record<string, ThemeDefinition> = {
     description: 'Clean light theme with high contrast',
     version: '1.0.0',
     colors: {
-      primary: '#3b82f6',
-      primaryHover: '#2563eb',
-      primaryActive: '#1d4ed8',
-      secondary: '#6b7280',
-      secondaryHover: '#4b5563',
-      secondaryActive: '#374151',
-      bgPrimary: '#ffffff',
-      bgSecondary: '#f9fafb',
-      bgTertiary: '#f3f4f6',
-      textPrimary: '#111827',
-      textSecondary: '#4b5563',
-      textTertiary: '#6b7280',
-      textInverse: '#ffffff',
-      borderPrimary: '#e5e7eb',
-      borderSecondary: '#d1d5db',
-      borderFocus: '#3b82f6',
-      success: '#10b981',
-      warning: '#f59e0b',
-      error: '#ef4444',
-      info: '#3b82f6',
-      accent: '#8b5cf6',
-      highlight: '#fef3c7',
+      primary: '#3b82f6',        // Matches primitive-blue-500
+      primaryHover: '#2563eb',   // Matches primitive-blue-600
+      primaryActive: '#1d4ed8',  // Matches primitive-blue-700
+      secondary: '#6b7280',      // Matches primitive-slate-500
+      secondaryHover: '#4b5563', // Matches primitive-slate-600
+      secondaryActive: '#374151', // Matches primitive-slate-700
+      bgPrimary: '#f8fafc',      // Matches primitive-slate-50
+      bgSecondary: '#f1f5f9',    // Matches primitive-slate-100
+      bgTertiary: '#e2e8f0',     // Matches primitive-slate-200
+      textPrimary: '#0f172a',    // Matches primitive-slate-950
+      textSecondary: '#475569',  // Matches primitive-slate-600
+      textTertiary: '#64748b',   // Matches primitive-slate-500
+      textInverse: '#ffffff',    // Pure white
+      borderPrimary: '#e2e8f0',  // Matches primitive-slate-200
+      borderSecondary: '#cbd5e1', // Matches primitive-slate-300
+      borderFocus: '#3b82f6',    // Matches primitive-blue-500
+      success: '#22c55e',        // Matches primitive-green-500
+      warning: '#eab308',        // Matches primitive-yellow-500
+      error: '#ef4444',          // Matches primitive-red-500
+      info: '#3b82f6',           // Matches primitive-blue-500
+      accent: '#3b82f6',         // Matches primitive-blue-500
+      highlight: '#fef3c7',      // Warm yellow
       shadow: 'rgba(0, 0, 0, 0.1)'
     },
     typography: {
@@ -272,28 +272,28 @@ export const builtInThemes: Record<string, ThemeDefinition> = {
     description: 'Dark theme optimized for low-light environments',
     version: '1.0.0',
     colors: {
-      primary: '#60a5fa',
-      primaryHover: '#3b82f6',
-      primaryActive: '#2563eb',
-      secondary: '#9ca3af',
-      secondaryHover: '#6b7280',
-      secondaryActive: '#4b5563',
-      bgPrimary: '#111827',
-      bgSecondary: '#1f2937',
-      bgTertiary: '#374151',
-      textPrimary: '#f9fafb',
-      textSecondary: '#d1d5db',
-      textTertiary: '#9ca3af',
-      textInverse: '#111827',
-      borderPrimary: '#374151',
-      borderSecondary: '#4b5563',
-      borderFocus: '#60a5fa',
-      success: '#34d399',
-      warning: '#fbbf24',
-      error: '#f87171',
-      info: '#60a5fa',
-      accent: '#a78bfa',
-      highlight: '#78350f',
+      primary: '#60a5fa',        // Matches primitive-blue-400
+      primaryHover: '#3b82f6',   // Matches primitive-blue-500
+      primaryActive: '#2563eb',  // Matches primitive-blue-600
+      secondary: '#9ca3af',      // Matches primitive-slate-400
+      secondaryHover: '#6b7280', // Matches primitive-slate-500
+      secondaryActive: '#4b5563', // Matches primitive-slate-600
+      bgPrimary: '#020617',      // Matches primitive-slate-950
+      bgSecondary: '#0f172a',    // Matches primitive-slate-900
+      bgTertiary: '#1e293b',     // Matches primitive-slate-800
+      textPrimary: '#f8fafc',    // Matches primitive-slate-50
+      textSecondary: '#cbd5e1',  // Matches primitive-slate-400
+      textTertiary: '#94a3b8',   // Matches primitive-slate-500
+      textInverse: '#020617',    // Matches primitive-slate-950
+      borderPrimary: '#334155',  // Matches primitive-slate-700
+      borderSecondary: '#475569', // Matches primitive-slate-600
+      borderFocus: '#60a5fa',    // Matches primitive-blue-400
+      success: '#22c55e',        // Matches primitive-green-500
+      warning: '#eab308',        // Matches primitive-yellow-500
+      error: '#ef4444',          // Matches primitive-red-500
+      info: '#60a5fa',           // Matches primitive-blue-400
+      accent: '#60a5fa',         // Matches primitive-blue-400
+      highlight: '#78350f',      // Dark yellow
       shadow: 'rgba(0, 0, 0, 0.3)'
     },
     typography: {
@@ -419,31 +419,102 @@ function isValidColor(color: string): boolean {
 
 /**
  * Generate CSS custom properties from theme
+ * Maps theme colors to primitive tokens to preserve semantic token architecture
  */
 export function generateCSSProperties(theme: ThemeDefinition): Record<string, string> {
   const properties: Record<string, string> = {};
 
-  // Colors
-  Object.entries(theme.colors).forEach(([key, value]) => {
-    properties[`--color-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`] = value;
+  // Convert hex colors to RGB space-separated format for primitive tokens
+  const hexToRgb = (hex: string): string => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}`
+      : hex;
+  };
+
+  // Map theme colors to PRIMITIVE tokens (not semantic ones)
+  // This preserves our 3-layer architecture: primitive → semantic → component
+  const colorMappings: Record<string, string> = {
+    // Map primary colors to blue primitives
+    'primary': 'primitive-blue-500',
+    'primary-hover': 'primitive-blue-600',
+    'primary-active': 'primitive-blue-700',
+
+    // Map secondary colors to slate primitives
+    'secondary': 'primitive-slate-500',
+    'secondary-hover': 'primitive-slate-600',
+    'secondary-active': 'primitive-slate-700',
+
+    // Map background colors to slate primitives
+    'bg-primary': 'primitive-slate-50',      // Light mode background
+    'bg-secondary': 'primitive-slate-100',   // Light mode secondary
+    'bg-tertiary': 'primitive-slate-200',    // Light mode tertiary
+
+    // Map text colors to slate primitives
+    'text-primary': 'primitive-slate-950',   // Light mode text
+    'text-secondary': 'primitive-slate-600',  // Light mode secondary text
+    'text-tertiary': 'primitive-slate-500',   // Light mode tertiary text
+    'text-inverse': '255 255 255',           // Pure white for inverse text
+
+    // Map border colors to slate primitives
+    'border-primary': 'primitive-slate-200',
+    'border-secondary': 'primitive-slate-300',
+    'border-focus': 'primitive-blue-500',
+
+    // Map status colors to existing primitives
+    'success': 'primitive-green-500',
+    'warning': 'primitive-yellow-500',
+    'error': 'primitive-red-500',
+    'info': 'primitive-blue-500',
+
+    // Map system colors
+    'accent': 'primitive-blue-500',
+    'highlight': '254 243 199',  // Warm yellow
+    'shadow': '0 0 0'           // Black for shadows
+  };
+
+  // Apply dark mode overrides for dark themes
+  if (theme.isDark) {
+    Object.assign(colorMappings, {
+      'bg-primary': 'primitive-slate-950',      // Dark mode background
+      'bg-secondary': 'primitive-slate-900',   // Dark mode secondary
+      'bg-tertiary': 'primitive-slate-800',    // Dark mode tertiary
+
+      'text-primary': 'primitive-slate-50',    // Dark mode text
+      'text-secondary': 'primitive-slate-400', // Dark mode secondary text
+      'text-tertiary': 'primitive-slate-500',  // Dark mode tertiary text
+      'text-inverse': '2 6 23',               // Dark mode inverse (slate-950)
+
+      'border-primary': 'primitive-slate-700',
+      'border-secondary': 'primitive-slate-600',
+
+      'primary': 'primitive-blue-400',         // Lighter blue for dark mode
+      'accent': 'primitive-blue-400',
+      'highlight': '120 53 15'                // Dark yellow for dark mode
+    });
+  }
+
+  // Generate CSS properties for primitive tokens only
+  Object.entries(colorMappings).forEach(([themeKey, primitiveKey]) => {
+    const themeValue = theme.colors[themeKey as keyof ThemeColors];
+    if (themeValue) {
+      properties[`--${primitiveKey}`] = hexToRgb(themeValue);
+    }
   });
 
-  // Typography
+  // Typography, spacing, shadows, borders (non-color properties can be set directly)
   Object.entries(theme.typography).forEach(([key, value]) => {
     properties[`--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`] = String(value);
   });
 
-  // Spacing
   Object.entries(theme.spacing).forEach(([key, value]) => {
     properties[`--space-${key.replace(/space/g, '').toLowerCase()}`] = value;
   });
 
-  // Shadows
   Object.entries(theme.shadows).forEach(([key, value]) => {
     properties[`--shadow-${key.replace('shadow', '').toLowerCase()}`] = value;
   });
 
-  // Borders
   Object.entries(theme.borders).forEach(([key, value]) => {
     properties[`--${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`] = value;
   });

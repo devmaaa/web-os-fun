@@ -12,19 +12,6 @@ interface WindowChromeProps {
 }
 
 const WindowChrome: Component<WindowChromeProps> = (props) => {
-  // Define keyframes for control animation
-  const keyframes = `
-    @keyframes controlAppear {
-      from {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-  `;
   const handleClose = () => {
     windowManager.closeWindow(props.windowId);
   };
@@ -42,64 +29,55 @@ const WindowChrome: Component<WindowChromeProps> = (props) => {
   };
 
   return (
-    <>
-      <style>{keyframes}</style>
-      <div
-        class={cn(
-          // Base chrome classes
-          'flex items-center justify-between h-8 px-3 select-none cursor-default transition-all duration-200 ease-in-out',
-          'backdrop-blur-[20px] border-b',
-          'md:h-7 md:px-2',
-          // Theme-aware background and border
-          props.isFocused
-            ? 'bg-opacity-95 border-opacity-20'
-            : 'bg-opacity-80 border-opacity-10'
-        )}
-        style={{
-          'background-color': props.isFocused
-            ? 'var(--color-bg-primary)'
-            : 'var(--color-bg-secondary)',
-          'border-color': 'var(--color-border-primary)'
-        }}
-      >
-        {/* Traffic light controls */}
-        <div class="flex items-center gap-3 relative z-20">
+    <div
+      class={cn(
+        // macOS-style chrome classes
+        'flex items-center justify-between h-7 px-3 select-none cursor-default transition-all duration-200 ease-out',
+        'backdrop-blur-[20px] rounded-t-xl',
+        'md:h-[30px] md:px-2',
+        // Theme-aware background using semantic classes
+        'bg-surface',
+        // Focus state affects border
+        props.isFocused
+          ? 'border-b border-border/20'
+          : 'border-b border-border/10'
+      )}
+    >
+        {/* macOS-style Traffic light controls */}
+        <div class="flex items-center gap-2.5 relative z-20">
           <button
-            class="w-5 h-5 min-w-5 min-h-5 rounded-full border-none cursor-pointer flex items-center justify-center transition-all duration-200 ease-in-out relative animate-[controlAppear_0.3s_ease-out] hover:scale-110 active:scale-95 bg-[#ff5f57] text-transparent hover:bg-[#ff3b30] hover:text-white md:w-4 md:h-4 md:min-w-4 md:min-h-4"
+            class="group w-3 h-3 min-w-[12px] min-h-[12px] rounded-full border border-black/10 cursor-pointer flex items-center justify-center transition-all duration-150 ease-out relative shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_1px_2px_rgba(0,0,0,0.2)] bg-macos-red hover:bg-macos-red-hover md:w-2.5 md:h-2.5 md:min-w-[10px] md:min-h-[10px] animate-macos-control-appear"
             onClick={handleClose}
             title="Close"
           >
-            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[16px] font-bold leading-none opacity-0 transition-opacity duration-200 ease-in-out hover:opacity-100 md:text-[14px]">×</span>
+            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-bold leading-none opacity-0 transition-opacity duration-150 ease-out group-hover:opacity-100 text-white md:text-[8px] drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">×</span>
           </button>
           <button
-            class="w-5 h-5 min-w-5 min-h-5 rounded-full border-none cursor-pointer flex items-center justify-center transition-all duration-200 ease-in-out relative animate-[controlAppear_0.3s_ease-out] hover:scale-110 active:scale-95 bg-[#ffbd2e] text-transparent hover:bg-[#ff9500] hover:text-white md:w-4 md:h-4 md:min-w-4 md:min-h-4"
+            class="group w-3 h-3 min-w-[12px] min-h-[12px] rounded-full border border-black/10 cursor-pointer flex items-center justify-center transition-all duration-150 ease-out relative shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_1px_2px_rgba(0,0,0,0.2)] bg-macos-yellow hover:bg-macos-yellow-hover md:w-2.5 md:h-2.5 md:min-w-[10px] md:min-h-[10px] animate-[controlAppear_0.3s_ease-out_0.05s]"
             onClick={handleMinimize}
             title="Minimize"
           >
-            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[16px] font-bold leading-none opacity-0 transition-opacity duration-200 ease-in-out hover:opacity-100 md:text-[14px]">−</span>
+            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-bold leading-none opacity-0 transition-opacity duration-150 ease-out group-hover:opacity-100 text-white md:text-[8px] drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">−</span>
           </button>
           <button
-            class={`w-5 h-5 min-w-5 min-h-5 rounded-full border-none cursor-pointer flex items-center justify-center transition-all duration-200 ease-in-out relative animate-[controlAppear_0.3s_ease-out] hover:scale-110 active:scale-95 text-transparent hover:text-white md:w-4 md:h-4 md:min-w-4 md:min-h-4 ${
-              props.isMaximized
-                ? 'bg-[#28ca42] hover:bg-[#00c84d]'
-                : 'bg-[#28ca42] hover:bg-[#00c84d]'
-            }`}
+            class="group w-3 h-3 min-w-[12px] min-h-[12px] rounded-full border border-black/10 cursor-pointer flex items-center justify-center transition-all duration-150 ease-out relative shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_1px_2px_rgba(0,0,0,0.2)] bg-macos-green hover:bg-macos-green-hover md:w-2.5 md:h-2.5 md:min-w-[10px] md:min-h-[10px] animate-[controlAppear_0.3s_ease-out_0.1s]"
             onClick={handleMaximize}
             title={props.isMaximized ? 'Restore' : 'Maximize'}
           >
-            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[16px] font-bold leading-none opacity-0 transition-opacity duration-200 ease-in-out hover:opacity-100 md:text-[14px]">{props.isMaximized ? '⧉' : '□'}</span>
+            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-bold leading-none opacity-0 transition-opacity duration-150 ease-out group-hover:opacity-100 text-white md:text-[8px] drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]">{props.isMaximized ? '−' : '+'}</span>
           </button>
         </div>
 
         {/* Title bar - draggable area */}
         <div
-          class="absolute left-1/2 -translate-x-1/2 text-[13px] font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px] md:text-[12px] md:max-w-[200px]"
+          class={cn(
+            "absolute left-1/2 -translate-x-1/2 text-[13px] font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-[400px] md:text-[12px] md:max-w-[300px] pointer-events-none select-none tracking-wide",
+            props.isFocused
+              ? "text-foreground drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]"
+              : "text-muted-foreground"
+          )}
           onDblClick={props.onDoubleClick}
           onMouseDown={props.onMouseDown}
-          style={{
-            cursor: 'grab',
-            color: 'var(--color-text-primary)'
-          }}
         >
           {props.title}
         </div>
@@ -111,17 +89,15 @@ const WindowChrome: Component<WindowChromeProps> = (props) => {
 
         {/* Invisible drag overlay covering the entire title bar except traffic lights */}
         <div
-          class="absolute inset-0 z-10"
+          class="absolute inset-0 z-10 cursor-grab"
           onDblClick={props.onDoubleClick}
           onMouseDown={props.onMouseDown}
           style={{
-            cursor: 'grab',
-            // Exclude the traffic light controls area from drag overlay
-            clipPath: 'polygon(80px 0, 100% 0, 100% 100%, 80px 100%)'
+            // Exclude the traffic light controls area from drag overlay (adjusted for smaller buttons)
+            'clip-path': 'polygon(60px 0, 100% 0, 100% 100%, 60px 100%)'
           }}
         />
       </div>
-    </>
   );
 };
 

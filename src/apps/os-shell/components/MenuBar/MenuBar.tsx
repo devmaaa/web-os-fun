@@ -107,7 +107,7 @@ const MenuBar: Component = () => {
 
   return (
     <div
-      class="fixed top-0 left-0 right-0 h-[26px] bg-bg-primary/70 backdrop-blur-xl flex items-center justify-between px-3 z-[1001] border-b border-black/10 dark:border-white/10 text-sm text-text-primary select-none"
+      class="fixed top-0 left-0 right-0 h-[26px] bg-background/70 backdrop-blur-xl flex items-center justify-between px-3 z-[1001] border-b border-black/10 dark:border-white/10 text-sm text-foreground select-none"
       onMouseLeave={() => setActiveMenu(null)}
     >
       {/* Left side menus */}
@@ -117,7 +117,7 @@ const MenuBar: Component = () => {
             <div class="relative h-full flex items-center">
               <button
                 class={`px-2.5 h-full text-xs rounded-sm transition-colors duration-150 ${
-                  activeMenu() === section.label ? 'bg-accent/80 text-text-inverse' : 'bg-transparent'
+                  activeMenu() === section.label ? 'bg-accent/80 text-accent-foreground' : 'bg-transparent'
                 }`}
                 onMouseEnter={() => handleMenuEnter(section.label)}
                 onClick={() => handleMenuClick(section.label)}
@@ -127,7 +127,7 @@ const MenuBar: Component = () => {
                 </span>
               </button>
               <Show when={activeMenu() === section.label}>
-                <div class="absolute top-full left-0 min-w-[220px] bg-bg-secondary/80 backdrop-blur-xl rounded-md shadow-2xl border border-black/10 dark:border-white/10 p-1 mt-1 animate-dropdownFadeIn">
+                <div class="absolute top-full left-0 min-w-[220px] bg-secondary/80 backdrop-blur-xl rounded-md shadow-2xl border border-black/10 dark:border-white/10 p-1 mt-1 animate-dropdownFadeIn">
                   <For each={section.items}>
                     {(item) => (
                       <div>
@@ -136,7 +136,7 @@ const MenuBar: Component = () => {
                         </Show>
                         <Show when={!item.separator}>
                           <div
-                            class="flex items-center justify-between px-2 py-0.5 text-xs rounded-sm cursor-default hover:bg-accent hover:text-text-inverse"
+                            class="flex items-center justify-between px-2 py-0.5 text-xs rounded-sm cursor-default hover:bg-accent hover:text-accent-foreground"
                             onClick={() => handleMenuItemClick(item)}
                           >
                             <span>{item.label}</span>
@@ -170,7 +170,7 @@ const MenuBar: Component = () => {
 
         {/* WiFi */}
         <div class="px-2 h-full flex items-center rounded-sm hover:bg-black/10 dark:hover:bg-white/10" title="WiFi">
-          <IconWifi class={`w-4 h-4 ${isWifiLikely() ? 'text-text-primary' : 'text-text-secondary'}`} />
+          <IconWifi class={`w-4 h-4 ${isWifiLikely() ? 'text-foreground' : 'text-muted-foreground'}`} />
         </div>
 
         {/* Date and Time */}

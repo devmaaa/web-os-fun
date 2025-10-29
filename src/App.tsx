@@ -1,6 +1,6 @@
 import { Component } from 'solid-js';
 import OsShell from '@apps/os-shell/OsShell';
-import './index.css';
+import './global.css';
 
 /**
  * Root application component

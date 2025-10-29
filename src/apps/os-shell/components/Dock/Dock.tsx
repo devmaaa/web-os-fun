@@ -5,7 +5,7 @@ import { eventBus } from '@core/event-bus';
 import { getFSM } from '@core/fsm';
 import type { PluginManifest } from '@core/plugin-loader';
 import type { FSMState, FSMEvent } from '@core/fsm';
-// Dock theming is now handled globally in index.css
+// Dock theming is now handled globally in global.css
 
 // Import icons using unplugin-icons (Heroicons for macOS-style)
 import IconCalculator from '~icons/heroicons-outline/calculator';
@@ -48,15 +48,15 @@ function Dock(props: DockProps) {
   const getDockIcon = (iconName: string) => {
     switch (iconName) {
       case 'calculator':
-        return <IconCalculator class="w-8 h-8" />;
+        return <IconCalculator class="dock-item-icon" />;
       case 'folder':
-        return <IconFolder class="w-8 h-8" />;
+        return <IconFolder class="dock-item-icon" />;
       case 'settings':
-        return <IconSettings class="w-8 h-8" />;
+        return <IconSettings class="dock-item-icon" />;
       case 'terminal':
-        return <IconTerminal class="w-8 h-8" />;
+        return <IconTerminal class="dock-item-icon" />;
       default:
-        return <IconFolder class="w-8 h-8" />; // fallback
+        return <IconFolder class="dock-item-icon" />; // fallback
     }
   };
 

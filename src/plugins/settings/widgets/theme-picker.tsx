@@ -38,7 +38,7 @@ const ThemePicker: Component<ThemePickerProps> = (props) => {
     <div class="space-y-4 sm:space-y-6">
       <div>
         <h3 class="text-lg font-semibold">Themes</h3>
-        <p class="text-sm text-text-secondary mt-1">Select a theme to change the appearance of the application.</p>
+        <p class="text-sm text-muted-foreground mt-1">Select a theme to change the appearance of the application.</p>
       </div>
 
       <Show when={loading()} fallback={
@@ -73,7 +73,7 @@ const ThemePicker: Component<ThemePickerProps> = (props) => {
                 </div>
                 <div class="mt-2 text-center">
                     <h4 class="font-medium text-xs sm:text-sm">{theme.displayName}</h4>
-                    <p class="text-xs text-text-secondary">{theme.isDark ? 'Dark' : 'Light'}</p>
+                    <p class="text-xs text-muted-foreground">{theme.isDark ? 'Dark' : 'Light'}</p>
                 </div>
               </div>
             )}
@@ -82,7 +82,7 @@ const ThemePicker: Component<ThemePickerProps> = (props) => {
       }>
         <div class="text-center py-8">
           <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
-          <p class="text-sm text-text-secondary mt-2">Loading themes...</p>
+          <p class="text-sm text-muted-foreground mt-2">Loading themes...</p>
         </div>
       </Show>
 
@@ -109,15 +109,15 @@ const ThemePicker: Component<ThemePickerProps> = (props) => {
               }
             }}
           />
-           <label
-             for="theme-upload"
-             class="px-4 py-2 bg-bg-secondary hover:bg-bg-tertiary rounded-md cursor-pointer text-sm font-medium"
-           >
-             Import Theme
-           </label>
-           <button
-             class="px-4 py-2 bg-bg-secondary hover:bg-bg-tertiary rounded-md text-sm font-medium"
-             onClick={() => {
+            <label
+              for="theme-upload"
+              class="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-md cursor-pointer text-sm font-medium"
+            >
+              Import Theme
+            </label>
+            <button
+              class="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-md text-sm font-medium"
+              onClick={() => {
               const themeData = ThemeAPI.exportTheme();
               const blob = new Blob([themeData], { type: 'application/json' });
               const url = URL.createObjectURL(blob);

@@ -53,12 +53,12 @@ const FontControls: Component<FontControlsProps> = (props) => {
     <div class="space-y-8">
       <div>
         <h3 class="text-base sm:text-lg font-semibold">Font Size</h3>
-        <div class="mt-2 flex flex-wrap gap-1 rounded-lg bg-bg-secondary p-1">
+        <div class="mt-2 flex flex-wrap gap-1 rounded-lg bg-secondary p-1">
           <For each={fontSizes}>
             {(size) => (
               <button
                 class={`flex-1 min-w-0 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
-                  fontSizeScale() === size.value ? 'bg-bg-primary text-accent shadow' : 'text-text-secondary hover:bg-bg-primary/50'
+                  fontSizeScale() === size.value ? 'bg-background text-accent shadow' : 'text-muted-foreground hover:bg-background/50'
                 }`}
                 onClick={() => handleFontSizeChange(size.value)}
               >
@@ -75,7 +75,7 @@ const FontControls: Component<FontControlsProps> = (props) => {
           <div>
             <label class="block text-sm font-medium mb-2">Primary Font</label>
             <select
-              class="w-full px-3 py-2 border border-border-primary rounded-md shadow-sm bg-bg-primary text-text-primary focus:border-accent focus:ring-1 focus:ring-accent"
+              class="w-full px-3 py-2 border border-border rounded-md shadow-sm bg-background text-foreground focus:border-accent focus:ring-1 focus:ring-accent"
               value={customFontFamily().primary || ''}
               onChange={(e) => handleFontFamilyChange('primary', e.target.value)}
             >
@@ -85,7 +85,7 @@ const FontControls: Component<FontControlsProps> = (props) => {
           <div>
             <label class="block text-sm font-medium mb-2">Secondary Font</label>
             <select
-              class="w-full px-3 py-2 border border-border-primary rounded-md shadow-sm bg-bg-primary text-text-primary focus:border-accent focus:ring-1 focus:ring-accent"
+              class="w-full px-3 py-2 border border-border rounded-md shadow-sm bg-background text-foreground focus:border-accent focus:ring-1 focus:ring-accent"
               value={customFontFamily().secondary || ''}
               onChange={(e) => handleFontFamilyChange('secondary', e.target.value)}
             >
@@ -97,7 +97,7 @@ const FontControls: Component<FontControlsProps> = (props) => {
 
       <div>
         <h3 class="text-base sm:text-lg font-semibold">Preview</h3>
-        <div class="mt-2 p-3 sm:p-4 border border-border-secondary rounded-lg bg-bg-primary space-y-3">
+        <div class="mt-2 p-3 sm:p-4 border border-border rounded-lg bg-background space-y-3">
           <p class="text-sm sm:text-base" style={{ 'font-family': customFontFamily().primary || 'system-ui' }}>
             Primary: The quick brown fox jumps over the lazy dog.
           </p>

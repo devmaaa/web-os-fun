@@ -15,7 +15,7 @@ const Taskbar: Component<TaskbarProps> = (props) => {
     <div class="taskbar absolute bottom-0 left-0 right-0 flex items-center px-2 shadow-lg">
       {/* Start Button */}
       <button
-        class="px-4 py-2 rounded mr-4 font-semibold bg-accent text-text-inverse"
+        class="px-4 py-2 rounded mr-4 font-semibold bg-accent text-accent-foreground"
         onClick={() => {
           const allPlugins = pluginLoader.plugins;
           const firstPlugin = allPlugins[0];
@@ -36,8 +36,8 @@ const Taskbar: Component<TaskbarProps> = (props) => {
               class={cn(
                 "px-3 py-2 rounded text-sm",
                 window.focused
-                  ? "bg-accent text-text-inverse"
-                  : "bg-transparent text-text-primary"
+                  ? "bg-accent text-accent-foreground"
+                  : "bg-transparent text-foreground"
               )}
               onClick={() => {
                 if (window.state === 'minimized') {
@@ -63,7 +63,7 @@ const Taskbar: Component<TaskbarProps> = (props) => {
       <div class="flex items-center gap-3 ml-4">
         {/* Theme Toggle */}
         <button
-          class="p-2 rounded bg-transparent text-text-primary hover:bg-bg-secondary"
+          class="p-2 rounded bg-transparent text-foreground hover:bg-secondary"
           onClick={props.onThemeToggle}
         >
           {props.theme === 'light' ? '🌙' : '☀️'}
@@ -71,7 +71,7 @@ const Taskbar: Component<TaskbarProps> = (props) => {
 
         {/* Clock */}
         <div
-          class="px-3 py-1 rounded text-sm font-medium bg-bg-tertiary text-text-primary"
+          class="px-3 py-1 rounded text-sm font-medium bg-muted text-foreground"
         >
           {props.currentTime.toLocaleTimeString()}
         </div>

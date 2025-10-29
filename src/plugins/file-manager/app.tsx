@@ -3,9 +3,9 @@ import { navigationModel } from './features/navigation';
 import { NavigationAPI } from './features/navigation';
 import { FileOperationsAPI } from './features/file-operations';
 import { fileOperationsModel } from './features/file-operations';
-import FileList from './widgets/file-list';
-import Toolbar from './widgets/toolbar';
-import Sidebar from './widgets/sidebar';
+import { FileList } from './widgets/file-list';
+import { Toolbar } from './widgets/toolbar';
+import { Sidebar } from './widgets/sidebar';
 import type { FileItem } from './entities/file';
 
 
@@ -79,12 +79,12 @@ const FileManager: Component = () => {
   };
 
   return (
-    <div class="file-manager h-full flex bg-white dark:bg-gray-800 relative">
+    <div class="file-manager h-full flex bg-background relative">
       <Sidebar isOpen={isSidebarOpen()} onClose={() => setIsSidebarOpen(false)} />
-      
+
       {/* Sidebar overlay for mobile */}
       <Show when={isSidebarOpen()}>
-        <div class="fixed inset-0 bg-black/30 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>
+        <div class="fixed inset-0 bg-overlay/30 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>
       </Show>
 
       <main class="flex-1 flex flex-col overflow-hidden">
@@ -100,10 +100,10 @@ const FileManager: Component = () => {
         />
 
         {/* File List */}
-        <div class="flex-1 overflow-auto">
+        <div class="flex-1 overflow-auto scrollbar-thin">
           <Show when={isLoading()}>
             <div class="flex items-center justify-center h-full">
-              <div class="animate-spin text-2xl">⚡</div>
+              <div class="loading-spinner"></div>
             </div>
           </Show>
           <Show when={!isLoading()}>

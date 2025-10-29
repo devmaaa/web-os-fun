@@ -1,7 +1,6 @@
 import { Component, For, Show } from 'solid-js';
 import type { FileItem } from '../../entities/file';
 import { navigationModel } from '../../features/navigation';
-import './FileList.css';
 
 // Import icons using unplugin-icons (Heroicons for macOS-style)
 import IconFolder from '~icons/heroicons-outline/folder';
@@ -30,30 +29,30 @@ const FileList: Component<FileListProps> = (props) => {
 
   const getFileIcon = (file: FileItem) => {
     if (file.type === 'folder') {
-      return <IconFolder class="w-6 h-6 text-blue-500" />;
+      return <IconFolder class="w-6 h-6 text-brand-primary" />;
     }
 
     const extension = file.extension?.toLowerCase();
     switch (extension) {
       case 'txt':
-        return <IconFileText class="w-6 h-6" />;
+        return <IconFileText class="w-6 h-6 text-foreground" />;
       case 'json':
-        return <IconFileCode class="w-6 h-6" />;
+        return <IconFileCode class="w-6 h-6 text-success" />;
       case 'log':
-        return <IconFileWarning class="w-6 h-6" />;
+        return <IconFileWarning class="w-6 h-6 text-warning" />;
       case 'jpg':
       case 'png':
       case 'gif':
-        return <IconImage class="w-6 h-6" />;
+        return <IconImage class="w-6 h-6 text-info" />;
       case 'mp4':
       case 'avi':
       case 'mkv':
-        return <IconVideo class="w-6 h-6" />;
+        return <IconVideo class="w-6 h-6 text-error" />;
       case 'mp3':
       case 'wav':
-        return <IconMusic class="w-6 h-6" />;
+        return <IconMusic class="w-6 h-6 text-brand-primary" />;
       default:
-        return <IconFile class="w-6 h-6" />;
+        return <IconFile class="w-6 h-6 text-muted-foreground" />;
     }
   };
 
@@ -67,22 +66,22 @@ const FileList: Component<FileListProps> = (props) => {
   };
 
   return (
-    <div class="h-full overflow-auto p-4 text-gray-700 dark:text-gray-200">
+    <div class="h-full overflow-auto p-4 text-foreground">
       <Show when={props.viewMode === 'list'}>
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-border">
+          <thead class="bg-surface">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Size</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Modified</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Name</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Size</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Modified</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="bg-background divide-y divide-border">
             <For each={props.files}>
               {(file) => (
                 <tr
-                  class={`hover:bg-gray-100 dark:hover:bg-gray-700/50 ${
-                    navigationModel.selectedItems().includes(file.path) ? 'bg-blue-100 dark:bg-blue-900/30' : ''
+                  class={`hover:bg-muted/50 ${
+                    navigationModel.selectedItems().includes(file.path) ? 'bg-brand-primary/10 border-l-2 border-brand-primary' : ''
                   }`}
                   onClick={(e) => handleItemClick(file, e)}
                   onDblClick={() => handleItemDoubleClick(file)}
@@ -91,10 +90,10 @@ const FileList: Component<FileListProps> = (props) => {
                     <span class="flex-shrink-0 w-6 h-6">{getFileIcon(file)}</span>
                     <span>{file.name}</span>
                   </td>
-                  <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <td class="px-6 py-3 whitespace-nowrap text-sm text-muted-foreground">
                     {file.type === 'folder' ? '--' : formatFileSize(file.size)}
                   </td>
-                  <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <td class="px-6 py-3 whitespace-nowrap text-sm text-muted-foreground">
                     {file.modified || '--'}
                   </td>
                 </tr>
@@ -111,8 +110,8 @@ const FileList: Component<FileListProps> = (props) => {
               <div
                 class={`flex flex-col items-center p-4 rounded-lg cursor-pointer transition-all duration-200 ease-in-out border-2 border-transparent ${
                   navigationModel.selectedItems().includes(file.path)
-                    ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-400'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-700/50'
+                    ? 'bg-brand-primary/10 border-brand-primary'
+                    : 'hover:bg-muted/50'
                 }`}
                 onClick={(e) => handleItemClick(file, e)}
                 onDblClick={() => handleItemDoubleClick(file)}
@@ -128,4 +127,4 @@ const FileList: Component<FileListProps> = (props) => {
   );
 };
 
-export default FileList;
+export { FileList };

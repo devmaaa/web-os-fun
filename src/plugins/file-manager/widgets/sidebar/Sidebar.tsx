@@ -69,21 +69,21 @@ const Sidebar: Component<SidebarProps> = (props) => {
   return (
     <div class={`
       absolute top-0 left-0 h-full z-30
-      w-56 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700/60
-      p-3 flex flex-col gap-4 overflow-y-auto 
+      w-56 bg-surface border-r border-border
+      p-3 flex flex-col gap-4 overflow-y-auto
       transition-transform duration-300 ease-in-out
       md:relative md:translate-x-0
       ${props.isOpen ? 'translate-x-0' : '-translate-x-full'}
     `}>
       <div class="flex justify-between items-center md:hidden">
-        <h2 class="text-lg font-semibold">File Manager</h2>
-        <button onClick={props.onClose} class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70">
-          <IconXMark class="w-5 h-5" />
+        <h2 class="text-lg font-semibold text-foreground">File Manager</h2>
+        <button onClick={props.onClose} class="p-1.5 rounded-md hover:bg-muted">
+          <IconXMark class="w-5 h-5 text-foreground" />
         </button>
       </div>
       <For each={sections}>{(section) => (
           <div>
-            <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase px-2 mb-1">
+            <h3 class="text-xs font-semibold text-muted-foreground uppercase px-2 mb-1">
               {section.title}
             </h3>
             <ul class="flex flex-col gap-0.5">
@@ -93,8 +93,8 @@ const Sidebar: Component<SidebarProps> = (props) => {
                       href="#"
                       class={`flex items-center gap-2.5 px-2 py-1.5 text-sm font-medium rounded-md transition-colors ${
                         item.active
-                          ? 'bg-blue-500 text-white'
-                          : 'text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-foreground hover:bg-muted'
                       }`}
                       onClick={() => {
                         console.log(`Navigate to ${item.path}`);
@@ -115,4 +115,4 @@ const Sidebar: Component<SidebarProps> = (props) => {
   );
 };
 
-export default Sidebar;
+export { Sidebar };

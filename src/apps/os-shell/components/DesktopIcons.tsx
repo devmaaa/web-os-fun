@@ -43,14 +43,14 @@ const DesktopIcons: Component<DesktopIconsProps> = (props) => {
         <For each={availablePlugins()}>
           {(plugin) => (
             <button
-              class="flex flex-col items-center justify-center p-4 rounded-lg hover:bg-bg-secondary hover:bg-opacity-20 transition-colors cursor-pointer bg-transparent text-text-primary"
+              class="flex flex-col items-center justify-center p-4 rounded-lg hover:bg-secondary hover:bg-opacity-20 transition-colors cursor-pointer bg-transparent text-foreground"
               onClick={() => props.onAppOpen(plugin.id)}
               title={plugin.displayName}
             >
               <div class="mb-2">
                 {getPluginIcon(plugin.icon)}
               </div>
-               <div class="text-xs text-text-primary text-center max-w-full break-words">
+               <div class="text-xs text-foreground text-center max-w-full break-words">
                  {plugin.displayName}
                </div>
             </button>

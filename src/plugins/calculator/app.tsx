@@ -140,15 +140,19 @@ const Calculator: Component = () => {
   const getButtonClass = (button: string) => {
     const isOperation = ['/', '*', '-', '+', '='].includes(button);
     const isMisc = ['AC', 'C', '±', '%'].includes(button);
+    const isNumber = !isNaN(Number(button)) && button !== '.';
 
-    let classes = 'text-white text-2xl border-none flex justify-center items-center select-none transition-all duration-100 ease-in-out active:brightness-150 ';
+    let classes = 'calculator-button text-2xl flex justify-center items-center select-none cursor-pointer ';
 
     if (isOperation) {
-        classes += `bg-[#f1a33c] text-4xl font-normal ${activeOperator() === button && button !== '=' ? 'bg-white text-[#f1a33c]' : ''}`;
+        classes += `operation text-4xl font-normal ${activeOperator() === button ? 'active' : ''}`;
     } else if (isMisc) {
-        classes += 'bg-[#a5a5a5] text-black text-2xl font-medium';
+        classes += 'function text-2xl font-medium';
+    } else if (isNumber) {
+        classes += 'number';
     } else {
-        classes += 'bg-[#333]';
+        // Decimal point
+        classes += 'number';
     }
 
     if (button === '0') {
@@ -159,11 +163,11 @@ const Calculator: Component = () => {
   };
 
   return (
-    <div class="bg-[#1c1c1c] rounded-lg overflow-hidden h-full flex flex-col">
-      <div class="text-white font-thin p-5 text-right w-full box-border flex-1 flex items-end justify-end" style={{ "font-size": fontSize() }}>
+    <div class="calculator rounded-lg overflow-hidden h-full flex flex-col">
+      <div class="calculator-display font-thin p-5 text-right w-full box-border flex-1 flex items-end justify-end" style={{ "font-size": fontSize() }}>
         {currentDisplay()}
       </div>
-      <div class="grid grid-cols-4 grid-rows-5 gap-px bg-black h-[70%]">
+      <div class="calculator-buttons grid grid-cols-4 grid-rows-5 h-[70%]">
         <For each={buttons.flat()}>
           {(button) => (
             <button

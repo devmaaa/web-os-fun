@@ -3,25 +3,25 @@
   position: relative;
   overflow: hidden;
 
-  /* macOS-style desktop background */
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Use semantic background color that adapts to theme */
+  background: rgb(var(--color-bg-primary));
 }
 
-/* Alternative macOS-style backgrounds */
+/* Alternative macOS-style backgrounds using semantic tokens */
 .os-shell.variant-mojave {
-  background: linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 100%);
+  background: linear-gradient(to bottom, rgb(var(--color-bg-secondary)) 0%, rgb(var(--color-bg-tertiary)) 100%);
 }
 
 .os-shell.variant-dark {
-  background: linear-gradient(to bottom, #2d3748 0%, #1a202c 100%);
+  background: linear-gradient(to bottom, rgb(var(--color-bg-tertiary)) 0%, rgb(var(--color-bg-quaternary)) 100%);
 }
 
 .os-shell.variant-catalina {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, rgb(var(--color-brand-primary) / 0.1) 0%, rgb(var(--color-brand-secondary) / 0.1) 100%);
 }
 
 .os-shell.variant-big-sur {
-  background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+  background: linear-gradient(135deg, rgb(var(--color-info) / 0.1) 0%, rgb(var(--color-brand-primary) / 0.1) 100%);
 }
 
 /* Desktop pattern overlay */
@@ -55,9 +55,6 @@
 }
 
 /* Window animations - now handled by Tailwind classes */
-.window {
-  animation: windowAppear 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
 
 /* Window wrapper enhancements for Tailwind */
 .window-wrapper {
