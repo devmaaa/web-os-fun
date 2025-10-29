@@ -4,6 +4,8 @@
 
 ![WebOS Logo](https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=WebOS)
 
+![WebOS Screenshot](static/screen.png)
+
 **A complete web-based operating system with modular, plugin-based architecture built with modern web technologies**
 
 🌐 **[Try the Live Demo](https://openwebos.netlify.app/)**
