@@ -3,7 +3,7 @@
   "displayName": "Settings",
   "version": "1.0.0",
   "description": "System configuration, user management, and restaurant settings",
-  "icon": "⚙️",
+  "icon": "settings",
   "entry": "./index.tsx",
   "permissions": [
     "admin.system",

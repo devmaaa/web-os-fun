@@ -11,11 +11,6 @@ export async function init() {
     pluginId: '@dineapp/calculator',
     timestamp: Date.now()
   });
-
-  return () => {
-    // Cleanup function
-    eventBus.offAll(scope);
-  };
 }
 
 function handleCalculationPerformed(event: any) {

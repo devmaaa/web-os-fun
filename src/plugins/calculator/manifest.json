@@ -3,7 +3,7 @@
   "displayName": "Calculator",
   "version": "1.0.0",
   "description": "Basic and scientific calculator",
-  "icon": "🧮",
+  "icon": "calculator",
   "entry": "./index.tsx",
   "permissions": [],
   "dependencies": [],

@@ -3,6 +3,16 @@ import { navigationModel } from '../../features/navigation';
 import { fileOperationsModel } from '../../features/file-operations';
 import Breadcrumb from '../breadcrumb';
 
+// Import icons using unplugin-icons (Heroicons for macOS-style)
+import IconBars3 from '~icons/heroicons-outline/bars-3';
+import IconArrowLeft from '~icons/heroicons-outline/arrow-left';
+import IconArrowRight from '~icons/heroicons-outline/arrow-right';
+import IconMagnifyingGlass from '~icons/heroicons-outline/magnifying-glass';
+import IconArrowPath from '~icons/heroicons-outline/arrow-path';
+import IconSquares2X2 from '~icons/heroicons-outline/squares-2x2';
+import IconFolderPlus from '~icons/heroicons-outline/folder-plus';
+import IconDocumentPlus from '~icons/heroicons-outline/document-plus';
+
 
 interface ToolbarProps {
   currentPath: string;
@@ -28,7 +38,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
           class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 md:hidden"
           title="Toggle Sidebar"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>
+          <IconBars3 class="w-[18px] h-[18px]" />
         </button>
         <button
           onClick={() => navigationModel.goBack()}
@@ -36,7 +46,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
           class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           title="Back"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          <IconArrowLeft class="w-[18px] h-[18px]" />
         </button>
         <button
           onClick={() => console.log('Navigate forward')}
@@ -44,7 +54,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
           class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           title="Forward"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="m5 12 7-7 7 7"/><path d="M19 12H5"/></svg>
+          <IconArrowRight class="w-[18px] h-[18px]" />
         </button>
       </div>
 
@@ -58,7 +68,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
             class="w-full pl-8 pr-2 py-1.5 text-sm bg-gray-200/70 dark:bg-gray-700/70 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <IconMagnifyingGlass class="w-4 h-4" />
           </span>
         </div>
       </div>
@@ -70,7 +80,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
           class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors"
           title="Refresh"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-cw"><path d="M21 12a9 9 0 0 0-9-9c-7.27 0-9 1.8-9 9s1.8 9 9 9c3.63 0 6.7-1.25 9-3"/><path d="M17 22v-5h5"/></svg>
+          <IconArrowPath class="w-[18px] h-[18px]" />
         </button>
 
         <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1 hidden sm:block"></div>
@@ -83,7 +93,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
             }`}
             title="List View"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+            <IconBars3 class="w-[18px] h-[18px]" />
           </button>
           <button
             onClick={() => props.onViewModeChange('grid')}
@@ -92,7 +102,7 @@ const Toolbar: Component<ToolbarProps> = (props) => {
             }`}
             title="Grid View"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <IconSquares2X2 class="w-[18px] h-[18px]" />
           </button>
         </div>
 
@@ -103,14 +113,14 @@ const Toolbar: Component<ToolbarProps> = (props) => {
           class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors"
           title="New Folder"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-plus"><path d="M12 10v6"/><path d="M15 13h-6"/><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.23A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+          <IconFolderPlus class="w-[18px] h-[18px]" />
         </button>
         <button
           onClick={props.onNewFile}
           class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70 transition-colors hidden sm:block"
           title="New File"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-plus"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="M9 15h6"/></svg>
+          <IconDocumentPlus class="w-[18px] h-[18px]" />
         </button>
       </div>
     </div>

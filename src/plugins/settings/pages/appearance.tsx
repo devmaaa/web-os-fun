@@ -7,6 +7,12 @@ import ThemePicker from '../widgets/theme-picker';
 import WallpaperGallery from '../widgets/wallpaper-gallery';
 import FontControls from '../widgets/font-controls';
 
+// Import icons using unplugin-icons (Heroicons for macOS-style)
+import IconSwatch from '~icons/heroicons-outline/swatch';
+import IconPhotograph from '~icons/heroicons-outline/photograph';
+import IconPencil from '~icons/heroicons-outline/pencil';
+import IconCog from '~icons/heroicons-outline/cog';
+
 const AppearancePage: Component = () => {
   const [activeTab, setActiveTab] = createSignal<'themes' | 'wallpaper' | 'fonts' | 'advanced'>('themes');
   const [themeSettings, setThemeSettings] = createSignal<ThemeSettings>();
@@ -121,12 +127,12 @@ const AppearancePage: Component = () => {
       {/* Tab Navigation */}
       <div class="px-4 pt-2 pb-4">
         <div class="p-1.5 max-w-md mx-auto flex flex-wrap justify-center gap-1 rounded-lg bg-bg-secondary">
-          {[
-            { id: 'themes', label: 'Themes', icon: '🎨' },
-            { id: 'wallpaper', label: 'Wallpaper', icon: '🖼️' },
-            { id: 'fonts', label: 'Fonts', icon: '📝' },
-            { id: 'advanced', label: 'Advanced', icon: '⚙️' }
-          ].map((tab) => (
+           {[
+             { id: 'themes', label: 'Themes', icon: IconSwatch },
+             { id: 'wallpaper', label: 'Wallpaper', icon: IconPhotograph },
+             { id: 'fonts', label: 'Fonts', icon: IconPencil },
+             { id: 'advanced', label: 'Advanced', icon: IconCog }
+           ].map((tab) => (
             <button
               class={`flex-1 min-w-0 flex items-center justify-center px-2 py-2 text-xs sm:text-sm font-medium rounded-md transition-colors ${
                 activeTab() === tab.id
@@ -135,7 +141,7 @@ const AppearancePage: Component = () => {
               }`}
               onClick={() => setActiveTab(tab.id as any)}
             >
-              <span class="mr-1 sm:mr-2 text-sm">{tab.icon}</span>
+               <span class="mr-1 sm:mr-2 text-sm">{tab.icon({ class: 'w-4 h-4' })}</span>
               <span class="truncate">{tab.label}</span>
             </button>
           ))}

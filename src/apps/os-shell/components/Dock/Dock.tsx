@@ -7,6 +7,12 @@ import type { PluginManifest } from '@core/plugin-loader';
 import type { FSMState, FSMEvent } from '@core/fsm';
 // Dock theming is now handled globally in index.css
 
+// Import icons using unplugin-icons (Heroicons for macOS-style)
+import IconCalculator from '~icons/heroicons-outline/calculator';
+import IconFolder from '~icons/heroicons-outline/folder';
+import IconSettings from '~icons/heroicons-outline/cog';
+import IconTerminal from '~icons/heroicons-outline/command-line';
+
 interface DockItem {
   id: string;
   name: string;
@@ -38,6 +44,21 @@ function Dock(props: DockProps) {
 
   // Development mode flag - properly defined in component scope
   const isDevMode = import.meta.env.DEV;
+
+  const getDockIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'calculator':
+        return <IconCalculator class="w-8 h-8" />;
+      case 'folder':
+        return <IconFolder class="w-8 h-8" />;
+      case 'settings':
+        return <IconSettings class="w-8 h-8" />;
+      case 'terminal':
+        return <IconTerminal class="w-8 h-8" />;
+      default:
+        return <IconFolder class="w-8 h-8" />; // fallback
+    }
+  };
 
   // FSM validation helper
   const isValidFSM = (fsm: any): boolean => {
@@ -522,9 +543,9 @@ function Dock(props: DockProps) {
                 data-plugin-id={item.id}
                 data-possible-events={possibleEvents.join(',')}
               >
-                <div class="dock-item-icon">
-                  {item.icon}
-                </div>
+                 <div class="dock-item-icon">
+                   {getDockIcon(item.icon)}
+                 </div>
 
                 {/* Running indicator with state-based animation */}
                 <Show when={item.isRunning}>

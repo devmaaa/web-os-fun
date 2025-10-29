@@ -3,9 +3,16 @@ import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import devtools from 'solid-devtools/vite';
 import path from 'path';
+import Icons from 'unplugin-icons/vite';
 
 export default defineConfig({
-  plugins: [devtools(), solidPlugin(), tailwindcss()],
+  plugins: [devtools(), solidPlugin(), tailwindcss(), Icons({
+      compiler: 'solid',
+      autoInstall: true,
+      // Optional: customize icon component props
+      defaultClass: '', // Add default classes if needed
+      defaultStyle: '', // Add default styles if needed
+  }),],
   server: {
     port: 3200,
   },

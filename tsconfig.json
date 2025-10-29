@@ -15,8 +15,7 @@
 
     // Type Checking & Safety
     "strict": true,
-    "types": ["vite/client"],
-
+    "types": ["vite/client","unplugin-icons/types/solid"],
     // Path Mapping - Microkernel Architecture
     "baseUrl": ".",
     "paths": {

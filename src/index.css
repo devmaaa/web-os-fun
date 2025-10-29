@@ -661,9 +661,34 @@ textarea:focus-visible {
 .dock-item-icon {
   font-size: var(--dock-icon-size);
   line-height: 1;
-  transition: transform var(--dock-transition);
+  transition: transform var(--dock-transition), color var(--dock-transition);
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
   pointer-events: none;
+  color: #ffffff; /* White icons for dark backgrounds */
+}
+
+/* Dock icon states */
+.dock-item:hover .dock-item-icon {
+  color: #f3f4f6; /* Slightly dimmed white on hover */
+}
+
+.dock-item.active .dock-item-icon {
+  color: #e5e7eb; /* More dimmed white when active */
+}
+
+/* Light theme support */
+@media (prefers-color-scheme: light) {
+  .dock-item-icon {
+    color: #6b7280; /* Gray icons for light backgrounds */
+  }
+
+  .dock-item:hover .dock-item-icon {
+    color: #374151; /* Darker gray on hover */
+  }
+
+  .dock-item.active .dock-item-icon {
+    color: #111827; /* Darkest gray when active */
+  }
 }
 
 /* Dock Magnification Classes */

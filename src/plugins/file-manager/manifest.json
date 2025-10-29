@@ -3,7 +3,7 @@
   "displayName": "File Manager",
   "version": "1.0.0",
   "description": "File system browser and manager",
-  "icon": "📁",
+  "icon": "folder",
   "entry": "./index.tsx",
   "permissions": [
     "fs.read",

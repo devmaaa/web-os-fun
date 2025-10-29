@@ -3,6 +3,9 @@ import { WallpaperAPI } from '@core/themes/wallpaper-manager';
 import type { WallpaperSource } from '@core/themes/wallpaper-manager';
 import type { WallpaperConfig } from '@core/themes/theme-schema';
 
+// Import icons using unplugin-icons (Heroicons for macOS-style)
+import IconXMark from '~icons/heroicons-outline/x-mark';
+
 interface WallpaperGalleryProps {
     selectedWallpaper?: WallpaperConfig;
     onWallpaperSelect: (wallpaper: WallpaperConfig) => void;
@@ -173,7 +176,7 @@ const WallpaperGallery: Component<WallpaperGalleryProps> = (props) => {
                                     class="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 bg-black/50 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                                     onClick={(e) => handleRemoveWallpaper(wallpaper.id, e)}
                                 >
-                                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>
+                                     <IconXMark class="w-3 h-3 sm:w-4 sm:h-4" />
                                 </button>
                             )}
                         </div>

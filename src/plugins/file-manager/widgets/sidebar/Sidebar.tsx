@@ -1,8 +1,19 @@
 import { Component, For, Show } from 'solid-js';
 
+// Import icons using unplugin-icons (Heroicons for macOS-style)
+import IconXMark from '~icons/heroicons-outline/x-mark';
+import IconClock from '~icons/heroicons-outline/clock';
+import IconSquares2X2 from '~icons/heroicons-outline/squares-2x2';
+import IconComputerDesktop from '~icons/heroicons-outline/computer-desktop';
+import IconDocumentText from '~icons/heroicons-outline/document-text';
+import IconArrowDownTray from '~icons/heroicons-outline/arrow-down-tray';
+import IconCloud from '~icons/heroicons-outline/cloud';
+import IconServer from '~icons/heroicons-outline/server';
+import IconGlobeAlt from '~icons/heroicons-outline/globe-alt';
+
 interface SidebarItem {
   name: string;
-  icon: string;
+  icon: any; // JSX element or string
   path: string;
   active?: boolean;
 }
@@ -22,35 +33,35 @@ const Sidebar: Component<SidebarProps> = (props) => {
     {
       title: 'Favorites',
       items: [
-        { name: 'Recents', icon: '⏱️', path: '/recents', active: true },
-        { name: 'Applications', icon: '🚀', path: '/applications' },
-        { name: 'Desktop', icon: '🖥️', path: '/desktop' },
-        { name: 'Documents', icon: '📄', path: '/documents' },
-        { name: 'Downloads', icon: '📥', path: '/downloads' },
+        { name: 'Recents', icon: <IconClock class="w-4 h-4" />, path: '/recents', active: true },
+        { name: 'Applications', icon: <IconSquares2X2 class="w-4 h-4" />, path: '/applications' },
+        { name: 'Desktop', icon: <IconComputerDesktop class="w-4 h-4" />, path: '/desktop' },
+        { name: 'Documents', icon: <IconDocumentText class="w-4 h-4" />, path: '/documents' },
+        { name: 'Downloads', icon: <IconArrowDownTray class="w-4 h-4" />, path: '/downloads' },
       ],
     },
     {
       title: 'iCloud',
       items: [
-        { name: 'iCloud Drive', icon: '☁️', path: '/icloud-drive' },
+        { name: 'iCloud Drive', icon: <IconCloud class="w-4 h-4" />, path: '/icloud-drive' },
       ],
     },
     {
       title: 'Locations',
       items: [
-        { name: 'Macintosh HD', icon: '💾', path: '/' },
-        { name: 'Network', icon: '🌐', path: '/network' },
+        { name: 'Macintosh HD', icon: <IconServer class="w-4 h-4" />, path: '/' },
+        { name: 'Network', icon: <IconGlobeAlt class="w-4 h-4" />, path: '/network' },
       ],
     },
     {
       title: 'Tags',
       items: [
-        { name: 'Red', icon: '🔴', path: '/tags/red' },
-        { name: 'Orange', icon: '🟠', path: '/tags/orange' },
-        { name: 'Yellow', icon: '🟡', path: '/tags/yellow' },
-        { name: 'Green', icon: '🟢', path: '/tags/green' },
-        { name: 'Blue', icon: '🔵', path: '/tags/blue' },
-        { name: 'Purple', icon: '🟣', path: '/tags/purple' },
+        { name: 'Red', icon: <div class="w-4 h-4 rounded-full bg-red-500"></div>, path: '/tags/red' },
+        { name: 'Orange', icon: <div class="w-4 h-4 rounded-full bg-orange-500"></div>, path: '/tags/orange' },
+        { name: 'Yellow', icon: <div class="w-4 h-4 rounded-full bg-yellow-500"></div>, path: '/tags/yellow' },
+        { name: 'Green', icon: <div class="w-4 h-4 rounded-full bg-green-500"></div>, path: '/tags/green' },
+        { name: 'Blue', icon: <div class="w-4 h-4 rounded-full bg-blue-500"></div>, path: '/tags/blue' },
+        { name: 'Purple', icon: <div class="w-4 h-4 rounded-full bg-purple-500"></div>, path: '/tags/purple' },
       ],
     },
   ];
@@ -67,7 +78,7 @@ const Sidebar: Component<SidebarProps> = (props) => {
       <div class="flex justify-between items-center md:hidden">
         <h2 class="text-lg font-semibold">File Manager</h2>
         <button onClick={props.onClose} class="p-1.5 rounded-md hover:bg-gray-200/70 dark:hover:bg-gray-700/70">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <IconXMark class="w-5 h-5" />
         </button>
       </div>
       <For each={sections}>{(section) => (
@@ -90,7 +101,7 @@ const Sidebar: Component<SidebarProps> = (props) => {
                         props.onClose(); // Close sidebar on navigation
                       }}
                     >
-                      <span class="text-base">{item.icon}</span>
+                      <span class="text-base flex items-center justify-center">{item.icon}</span>
                       <span>{item.name}</span>
                     </a>
                   </li>

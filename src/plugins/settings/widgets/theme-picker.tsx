@@ -2,6 +2,9 @@ import { Component, For, createSignal, Show, createEffect } from 'solid-js';
 import { ThemeAPI } from '@core/themes/theme-engine';
 import type { ThemeDefinition } from '@core/themes/theme-schema';
 
+// Import icons using unplugin-icons (Heroicons for macOS-style)
+import IconCheck from '~icons/heroicons-outline/check';
+
 interface ThemePickerProps {
   selectedThemeId?: string;
   onThemeSelect: (themeId: string) => void;
@@ -63,9 +66,9 @@ const ThemePicker: Component<ThemePickerProps> = (props) => {
                   </div>
                   <Show when={props.selectedThemeId === theme.id}>
                     <div class="absolute inset-0 bg-accent/10"></div>
-                    <div class="absolute top-1 right-1 sm:top-2 sm:right-2 bg-accent text-text-inverse rounded-full p-0.5">
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                    </div>
+                     <div class="absolute top-1 right-1 sm:top-2 sm:right-2 bg-accent text-text-inverse rounded-full p-0.5">
+                       <IconCheck class="w-3 h-3 sm:w-4 sm:h-4" />
+                     </div>
                   </Show>
                 </div>
                 <div class="mt-2 text-center">

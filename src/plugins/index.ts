@@ -26,7 +26,7 @@ const fileManagerManifest: PluginManifest = {
   displayName: "File Manager",
   version: "1.0.0",
   description: "File system browser and manager",
-  icon: "📁",
+  icon: "folder",
   entry: "./index.tsx",
   permissions: [
     "fs.read",
@@ -52,7 +52,7 @@ const terminalManifest: PluginManifest = {
   displayName: "Terminal",
   version: "1.0.0",
   description: "Command line terminal emulator",
-  icon: "💻",
+  icon: "terminal",
   entry: "./index.tsx",
   permissions: [
     "fs.read",
@@ -77,7 +77,7 @@ const calculatorManifest: PluginManifest = {
   displayName: "Calculator",
   version: "1.0.0",
   description: "Basic and scientific calculator",
-  icon: "🧮",
+  icon: "calculator",
   entry: "./index.tsx",
   permissions: [],
   dependencies: [],
@@ -100,7 +100,7 @@ const settingsManifest: PluginManifest = {
   displayName: "Settings",
   version: "1.0.0",
   description: "Application settings and configuration",
-  icon: "⚙️",
+  icon: "settings",
   entry: "./index.tsx",
   permissions: [
     "settings.read",

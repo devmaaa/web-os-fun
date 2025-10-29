@@ -12,11 +12,6 @@ export async function init() {
     pluginId: '@dineapp/file-manager',
     timestamp: Date.now()
   });
-
-  return () => {
-    // Cleanup function
-    eventBus.offAll(scope);
-  };
 }
 
 function handleFileSelected(event: any) {

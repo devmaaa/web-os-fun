@@ -3,6 +3,16 @@ import type { FileItem } from '../../entities/file';
 import { navigationModel } from '../../features/navigation';
 import './FileList.css';
 
+// Import icons using unplugin-icons (Heroicons for macOS-style)
+import IconFolder from '~icons/heroicons-outline/folder';
+import IconFileText from '~icons/heroicons-outline/document-text';
+import IconFileCode from '~icons/heroicons-outline/code';
+import IconFileWarning from '~icons/heroicons-outline/exclamation';
+import IconImage from '~icons/heroicons-outline/photograph';
+import IconVideo from '~icons/heroicons-outline/film';
+import IconMusic from '~icons/heroicons-outline/music-note';
+import IconFile from '~icons/heroicons-outline/document';
+
 interface FileListProps {
   files: FileItem[];
   viewMode: 'list' | 'grid';
@@ -20,32 +30,30 @@ const FileList: Component<FileListProps> = (props) => {
 
   const getFileIcon = (file: FileItem) => {
     if (file.type === 'folder') {
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder text-blue-500"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.23A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
-      );
+      return <IconFolder class="w-6 h-6 text-blue-500" />;
     }
 
     const extension = file.extension?.toLowerCase();
     switch (extension) {
       case 'txt':
-        return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>;
+        return <IconFileText class="w-6 h-6" />;
       case 'json':
-        return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-code"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 18l-2-2 2-2"/><path d="m15 14 2 2-2 2"/></svg>;
+        return <IconFileCode class="w-6 h-6" />;
       case 'log':
-        return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-warning"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 10v4"/><path d="M12 18h.01"/></svg>;
+        return <IconFileWarning class="w-6 h-6" />;
       case 'jpg':
       case 'png':
       case 'gif':
-        return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>;
+        return <IconImage class="w-6 h-6" />;
       case 'mp4':
       case 'avi':
       case 'mkv':
-        return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-video"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="8" width="14" height="8" rx="2" ry="2"/></svg>;
+        return <IconVideo class="w-6 h-6" />;
       case 'mp3':
       case 'wav':
-        return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>;
+        return <IconMusic class="w-6 h-6" />;
       default:
-        return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>;
+        return <IconFile class="w-6 h-6" />;
     }
   };
 

@@ -1,15 +1,22 @@
 import { Component, createSignal, Show } from 'solid-js';
 import AppearancePage from './pages/appearance';
 
+// Import icons using unplugin-icons (Heroicons for macOS-style)
+import IconSwatch from '~icons/heroicons-outline/swatch';
+import IconBuildingOffice from '~icons/heroicons-outline/building-office';
+import IconCog from '~icons/heroicons-outline/cog';
+import IconBars3 from '~icons/heroicons-outline/bars-3';
+import IconXMark from '~icons/heroicons-outline/x-mark';
+
 const SettingsApp: Component = () => {
   const [activeSection, setActiveSection] = createSignal<'appearance' | 'business' | 'system'>('appearance');
   const [isSidebarOpen, setIsSidebarOpen] = createSignal(false);
 
   const sections = [
-    { id: 'appearance', label: 'Appearance', icon: '🎨' },
-    { id: 'business', label: 'Business', icon: '🏢' },
-    { id: 'system', label: 'System', icon: '⚙️' }
-  ];
+    { id: 'appearance', label: 'Appearance', icon: IconSwatch },
+    { id: 'business', label: 'Business', icon: IconBuildingOffice },
+    { id: 'system', label: 'System', icon: IconCog }
+  ] as const;
 
   const selectSection = (sectionId: 'appearance' | 'business' | 'system') => {
     setActiveSection(sectionId);
@@ -34,11 +41,9 @@ const SettingsApp: Component = () => {
         <div class="h-full flex flex-col">
             <div class="h-14 flex-shrink-0 flex items-center justify-between px-4">
               <span class="text-lg font-semibold">Settings</span>
-              <button onClick={() => setIsSidebarOpen(false)} class="md:hidden text-text-primary">
-                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-              </button>
+               <button onClick={() => setIsSidebarOpen(false)} class="md:hidden text-text-primary">
+                 <IconXMark class="w-6 h-6" />
+               </button>
             </div>
             <div class="p-2">
                 <input type="text" placeholder="Search" class="w-full px-2 py-1.5 text-sm rounded-md border border-border-secondary bg-bg-tertiary focus:outline-none focus:ring-1 focus:ring-accent" />
@@ -53,7 +58,7 @@ const SettingsApp: Component = () => {
                 }`}
                 onClick={() => selectSection(section.id as any)}
                 >
-                <span class="mr-3 text-lg">{section.icon}</span>
+                 <span class="mr-3 text-lg">{section.icon({ class: 'w-5 h-5' })}</span>
                 <span class="flex-1">{section.label}</span>
                 </button>
             ))}
@@ -70,11 +75,9 @@ const SettingsApp: Component = () => {
       <div class="flex-1 flex flex-col overflow-y-auto">
         {/* Header */}
         <div class="h-14 flex-shrink-0 border-b border-border-primary flex items-center px-6">
-            <button class="md:hidden mr-4 text-text-primary" onClick={() => setIsSidebarOpen(true)}>
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
+             <button class="md:hidden mr-4 text-text-primary" onClick={() => setIsSidebarOpen(true)}>
+               <IconBars3 class="w-6 h-6" />
+             </button>
             <Show when={activeSection() === 'appearance'}>
                 <div>
                     <h2 class="text-xl font-semibold">Appearance</h2>
